@@ -11,9 +11,6 @@ app.use(cors());
 
 app.post("/api/login", (req, res) => {
   const data = req.body;
-
-  const email = data.email;
-  const password = data.password;
 });
 
 // TODO signup
