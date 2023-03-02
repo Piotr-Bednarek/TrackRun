@@ -1,28 +1,24 @@
-import * as Interface from "./Interfaces";
+import * as Interface from "./models/Interfaces";
 
 import express from "express";
 
-import dotenv from "dotenv";
+// import dotenv from "dotenv";
 import cors from "cors";
 import bodyParser from "body-parser";
 
-dotenv.config();
+// dotenv.config();
 
 const app = express();
 
 app.use(cors());
 app.use(bodyParser.json());
 
-import { applicationDefault, initializeApp } from "firebase-admin/app";
-
-// import serviceAccount from "./serviceAccountKey.json";
-
-import admin from "firebase-admin";
 import { getAuth } from "firebase-admin/auth";
 
-const serviceAccount = require("./serviceAccountKey.json");
+import { getUidFromToken } from "./utils/authenticateUser";
 
-// import serviceAccount from "../serviceAccountKey.json";
+import admin from "firebase-admin";
+const serviceAccount = require("./serviceAccountKey.json");
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -37,17 +33,14 @@ app.post("/api/login", (req, res) => {
 app.post("/api/test", (req, res) => {
   const data: Interface.Data = req.body;
 
-  getAuth()
-    .verifyIdToken(data.idToken)
-    .then((decodedToken) => {
-      const uid = decodedToken.uid;
+  getUidFromToken(data.idToken)
+    .then((uid) => {
       console.log(uid);
+      res.json({ success: true, uid: uid });
     })
     .catch((error) => {
       console.log(error);
     });
-
-  res.send("Succes!");
 });
 
 app.listen(process.env.PORT, () => {

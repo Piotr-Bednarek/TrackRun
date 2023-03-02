@@ -45,6 +45,11 @@ function App() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ idToken: idToken }),
+        }).then((res) => {
+          // console.log(JSON.parse(res));
+          res.json().then((text) => {
+            console.log(text);
+          });
         });
       })
       .catch((error: any) => {
