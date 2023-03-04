@@ -39,6 +39,34 @@ app.post("/api/login", (req, res) => {
     });
 });
 
+app.get("/api/get-user-data", (req, res) => {
+  const uid: string = req.query.uid as string;
+  console.log(uid);
+
+  // if (!uid) {
+  //   res.status(400).json({ success: false, error: "Missing uid" });
+  //   return;
+  // }
+
+  const userRef = db.collection("users").doc(uid);
+
+  userRef
+    .collection("runs")
+    .orderBy("runDate", "desc")
+    .get()
+    .then((snapshot) => {
+      const runsData: any = [];
+      console.log("snapshot: ", snapshot);
+      snapshot.forEach((doc) => {
+        runsData.push(doc.data());
+      });
+      res.json({ success: true, runsData: runsData });
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+});
+
 app.post("/api/create-new-run", (req, res) => {
   //get runData from request
   const data = req.body;
@@ -77,9 +105,9 @@ const addNewRunToDatabase = async (uid: string, runData: any) => {
 
   // console.log("snapshot: ", snapshot);
 
-  snapshot.forEach((doc) => {
-    console.log(doc.id, "=>", doc.data());
-  });
+  // snapshot.forEach((doc) => {
+  //   console.log(doc.id, "=>", doc.data());
+  // });
 
   const newRunRef = runsRef.doc();
 

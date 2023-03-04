@@ -1,11 +1,9 @@
 import { useParams, useNavigate } from "react-router-dom";
 
 import { logOut, auth, getUserByUid } from "../firebase/firebase";
+import { onAuthStateChanged } from "firebase/auth";
 
 import { useState, useEffect } from "react";
-
-import { onAuthStateChanged } from "firebase/auth";
-import { connectFirestoreEmulator } from "firebase/firestore";
 
 export default function UserPage() {
   const { userUid: uid } = useParams();
@@ -18,6 +16,8 @@ export default function UserPage() {
 
   const [averagePace, updateAveragePace] = useState<number>();
 
+  const [userRunData, setUserRunData] = useState<any>(null);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -25,6 +25,28 @@ export default function UserPage() {
       console.log("No uid");
       return;
     }
+
+    fetch(`http://localhost:3000/api/get-user-data?uid=${uid}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          res.json().then((r) => console.log("Error:", r.error));
+          return;
+        }
+        res.json().then((text) => {
+          console.log(text.success);
+          console.log(text.runsData);
+          setUserRunData(text.runsData);
+        });
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+
     onAuthStateChanged(auth, (user) => {
       if (user) {
         setUserData(user); // TODO: change it to get userData from database
@@ -97,13 +119,9 @@ export default function UserPage() {
     time_minutes: any
   ) => {
     if (!distance_km) {
-      // console.log("No data");
-      // console.log(distance_km, time_hours, time_minutes);
       return;
     }
     if (!time_hours && !time_minutes) {
-      // console.log("No data");
-      // console.log(distance_km, time_hours, time_minutes);
       return;
     }
 
@@ -118,13 +136,10 @@ export default function UserPage() {
       minutes = time_hours * 60 + time_minutes;
     }
 
-    const paceMinPerKm = minutes / distance_km; // ** AVERAGE PACE IN MINUTES PER KM **
+    const paceMinPerKm = minutes / distance_km;
     console.log("minutes: ", minutes);
     console.log("pace: ", paceMinPerKm);
     updateAveragePace(paceMinPerKm);
-
-    // console.log("yes data");
-    // console.log(distance_km, time_hours, time_minutes);
   };
 
   const updateDistnaceKmInput = (e: any) => {
@@ -177,6 +192,21 @@ export default function UserPage() {
             <button>submit</button>
           </form>
           <p>Average pace: {averagePace} min/km</p>
+        </div>
+      )}
+      {userRunData && (
+        <div>
+          {userRunData.map((run: any, idx: number) => (
+            <div key={idx}>
+              <p>Run date: {run.runDate}</p>
+              <p>Run distance: {run.runDistanceKm} km</p>
+              <p>Run average pace: {run.runAveragePace} min/km</p>
+
+              <p>
+                Run time: {run.runTimeHours} hours {run.runTimeMinutes} minutes
+              </p>
+            </div>
+          ))}
         </div>
       )}
     </div>
