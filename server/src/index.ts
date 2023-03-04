@@ -18,7 +18,7 @@ import { getUidFromToken } from "./utils/authenticateUser";
 
 import admin from "firebase-admin";
 import { getAuth } from "firebase-admin/auth";
-import serviceAccount from "../serviceAccountKey.json";
+import serviceAccount from "./serviceAccountKey.json";
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount as admin.ServiceAccount),
