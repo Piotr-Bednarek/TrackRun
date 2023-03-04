@@ -3,6 +3,7 @@ import * as Interface from "./models/Interfaces";
 import express from "express";
 
 import dotenv from "dotenv";
+
 import cors from "cors";
 import bodyParser from "body-parser";
 
@@ -17,10 +18,10 @@ import { getUidFromToken } from "./utils/authenticateUser";
 
 import admin from "firebase-admin";
 import { getAuth } from "firebase-admin/auth";
-const serviceAccount = require("./serviceAccountKey.json");
+import serviceAccount from "../serviceAccountKey.json";
 
 admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
+  credential: admin.credential.cert(serviceAccount as admin.ServiceAccount),
 });
 
 const db = admin.firestore();
@@ -36,12 +37,13 @@ app.post("/api/login", (req, res) => {
     })
     .catch((error) => {
       console.log(error);
+      console.log("error");
     });
 });
 
 app.get("/api/get-user-data", (req, res) => {
   const uid: string = req.query.uid as string;
-  console.log(uid);
+  // console.log(uid);
 
   // if (!uid) {
   //   res.status(400).json({ success: false, error: "Missing uid" });
@@ -56,7 +58,6 @@ app.get("/api/get-user-data", (req, res) => {
     .get()
     .then((snapshot) => {
       const runsData: any = [];
-      console.log("snapshot: ", snapshot);
       snapshot.forEach((doc) => {
         runsData.push(doc.data());
       });
@@ -64,6 +65,7 @@ app.get("/api/get-user-data", (req, res) => {
     })
     .catch((error) => {
       console.log(error);
+      console.log("error");
     });
 });
 
@@ -96,14 +98,12 @@ const addNewRunToDatabase = async (uid: string, runData: any) => {
 
   const runsRef = userRef.collection("runs");
 
-  const snapshot = await runsRef.get();
+  // const snapshot = await runsRef.get();
 
   // if (snapshot.exists) {
   //   console.log("No matching documents.");
   //   return;
   // }
-
-  // console.log("snapshot: ", snapshot);
 
   // snapshot.forEach((doc) => {
   //   console.log(doc.id, "=>", doc.data());
