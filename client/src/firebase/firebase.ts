@@ -5,6 +5,8 @@ import {
   getAuth,
   signInWithPopup,
   signOut,
+  setPersistence,
+  browserLocalPersistence,
 } from "firebase/auth";
 
 const firebaseConfig = {
@@ -16,8 +18,21 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_CONFIG_APP_ID,
 };
 
+// import "firebase/firestore";
+import { getDoc, doc, getFirestore } from "firebase/firestore";
+
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+
+const db = getFirestore(app);
+
+setPersistence(auth, browserLocalPersistence)
+  .then(() => {
+    console.log("Successfully set persistence");
+  })
+  .catch((error) => {
+    console.log("Error setting persistence: ", error);
+  });
 
 const googleProvider = new GoogleAuthProvider();
 
@@ -26,9 +41,9 @@ const signInWithGoogle = async () => {
     const res = await signInWithPopup(auth, googleProvider);
 
     const user = res.user;
-    console.log("user: ", user);
+    return { user: user, message: "Successfully logged in!" };
   } catch (error) {
-    console.log(error);
+    return { message: "Error while logging in!" };
   }
 };
 
@@ -44,4 +59,26 @@ const logOut = () => {
     });
 };
 
-export { signInWithGoogle, logOut, auth };
+const getUserByUid = async (uid: string) => {
+  // TODO: get user from database
+
+  console.log("test");
+  console.log(uid);
+
+  const userRef = doc(db, "users", uid);
+
+  const userSnap = await getDoc(userRef);
+
+  // console.log("userSnap: ", userSnap);
+
+  if (userSnap.exists()) {
+    const userData = userSnap.data();
+    console.log("User found!");
+    return { message: "User found!", userData: userData };
+  } else {
+    console.log("No such user!");
+    return { error: "No such user!" };
+  }
+};
+
+export { signInWithGoogle, logOut, auth, getUserByUid };

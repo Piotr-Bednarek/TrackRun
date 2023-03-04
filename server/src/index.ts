@@ -16,6 +16,7 @@ app.use(bodyParser.json());
 import { getUidFromToken } from "./utils/authenticateUser";
 
 import admin from "firebase-admin";
+import { getAuth } from "firebase-admin/auth";
 const serviceAccount = require("./serviceAccountKey.json");
 
 admin.initializeApp({
@@ -25,17 +26,11 @@ admin.initializeApp({
 const db = admin.firestore();
 
 app.post("/api/login", (req, res) => {
-  const data = req.body;
-  console.log(data);
-  res.send("Hello World!");
-});
+  const idToken: string = req.body.idToken;
 
-app.post("/api/test", (req, res) => {
-  const data: Interface.Data = req.body;
-
-  getUidFromToken(data.idToken)
+  getUidFromToken(idToken)
     .then((uid) => {
-      console.log(uid);
+      // console.log(uid);
       addUserToDatabase(uid);
       res.json({ success: true, uid: uid });
     })
@@ -44,15 +39,25 @@ app.post("/api/test", (req, res) => {
     });
 });
 
-const addUserToDatabase = (uid: any) => {
+const addUserToDatabase = async (uid: any) => {
   const userRef = db.collection("users").doc(uid);
-  const runRef = db.collection("users").doc(uid).collection("runs").doc();
 
-  const run: Interface.Run = {
-    runId: runRef.id,
-  };
+  const snapshot = await userRef.get();
 
-  userRef.collection("runs").doc(run.runId).set(run);
+  if (snapshot.exists) {
+    console.log("User already exists in database: ", uid);
+  } else {
+    const user = await getAuth().getUser(uid);
+
+    await userRef.create({
+      // uid: uid,
+      // email: user.email,
+      displayName: user.displayName,
+      photoURL: user.photoURL,
+      createdAt: user.metadata.creationTime,
+    });
+    console.log("Successfully added user to database: ", uid);
+  }
 };
 
 app.listen(process.env.PORT, () => {
