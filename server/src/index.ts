@@ -39,6 +39,55 @@ app.post("/api/login", (req, res) => {
     });
 });
 
+app.post("/api/create-new-run", (req, res) => {
+  //get runData from request
+  const data = req.body;
+  // console.log(data.uid);
+
+  if (!data.runDistanceKm || !data.runAveragePace || !data.runDate) {
+    res.status(400).json({ success: false, error: "Missing run data" });
+    return;
+  }
+
+  // check if runs subcollection exists in user document
+
+  const newRunData: Interface.Run = {
+    runDistanceKm: data.runDistanceKm,
+    runAveragePace: data.runAveragePace,
+    runDate: data.runDate,
+  };
+
+  addNewRunToDatabase(data.uid, newRunData);
+
+  // console.log("runData: ", data);
+  // console.log("runsRef: ", runsRef);
+});
+
+const addNewRunToDatabase = async (uid: string, runData: any) => {
+  const userRef = db.collection("users").doc(uid);
+
+  const runsRef = userRef.collection("runs");
+
+  const snapshot = await runsRef.get();
+
+  // if (snapshot.exists) {
+  //   console.log("No matching documents.");
+  //   return;
+  // }
+
+  // console.log("snapshot: ", snapshot);
+
+  snapshot.forEach((doc) => {
+    console.log(doc.id, "=>", doc.data());
+  });
+
+  const newRunRef = runsRef.doc();
+
+  await newRunRef.create(runData);
+
+  console.log("Successfully added new run to database: ", newRunRef.id);
+};
+
 const addUserToDatabase = async (uid: any) => {
   const userRef = db.collection("users").doc(uid);
 
@@ -50,8 +99,6 @@ const addUserToDatabase = async (uid: any) => {
     const user = await getAuth().getUser(uid);
 
     await userRef.create({
-      // uid: uid,
-      // email: user.email,
       displayName: user.displayName,
       photoURL: user.photoURL,
       createdAt: user.metadata.creationTime,

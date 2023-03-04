@@ -3,5 +3,7 @@ export interface Data {
 }
 
 export interface Run {
-  runId: string;
+  runDistanceKm: number;
+  runAveragePace: number;
+  runDate: string;
 }
