@@ -1,4 +1,4 @@
-import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged } from "firebase/auth";
 import { useState, useEffect } from "react";
 import "./App.css";
 
@@ -45,6 +45,11 @@ function App() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ idToken: idToken }),
+        }).then((res) => {
+          // console.log(JSON.parse(res));
+          res.json().then((text) => {
+            console.log(text);
+          });
         });
       })
       .catch((error: any) => {
