@@ -5,9 +5,6 @@ import LoginPage from "./routes/LoginPage";
 import UserPage from "./routes/UserPage";
 import LandingPage from "./routes/LandingPage";
 
-// import App from "./App";
-import "./index.css";
-
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 const router = createBrowserRouter([

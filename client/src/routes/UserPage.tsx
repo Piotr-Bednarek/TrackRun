@@ -4,6 +4,9 @@ import { logOut, auth, getUserByUid } from "../firebase/firebase";
 
 import { useState, useEffect } from "react";
 import { browserLocalPersistence } from "firebase/auth";
+import Header from "../components/UserPage/Header";
+
+import "./index.css";
 
 export default function UserPage() {
   const { userUid: uid } = useParams();
@@ -177,9 +180,9 @@ export default function UserPage() {
 
   return (
     <div>
-      <button onClick={() => handleLogout()}>sign out</button>
       {userData ? (
         <div>
+          <Header />
           <h2>Joined: {userData.createdAt}</h2>
           <h1>{userData.displayName}</h1>
           <img src={userData.photoURL} alt="" />
@@ -187,6 +190,7 @@ export default function UserPage() {
       ) : (
         <h1>Loading...</h1>
       )}
+      <button onClick={() => handleLogout()}>sign out</button>
 
       {isOwnProfile && (
         <div>
