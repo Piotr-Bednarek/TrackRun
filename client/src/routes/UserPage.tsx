@@ -1,9 +1,12 @@
 import { useParams, useNavigate } from "react-router-dom";
 
 import { logOut, auth, getUserByUid } from "../firebase/firebase";
-import { onAuthStateChanged } from "firebase/auth";
 
 import { useState, useEffect } from "react";
+import { browserLocalPersistence } from "firebase/auth";
+import Header from "../components/UserPage/Header";
+
+import "./index.css";
 
 export default function UserPage() {
   const { userUid: uid } = useParams();
@@ -25,54 +28,72 @@ export default function UserPage() {
       console.log("No uid");
       return;
     }
+    checkIfOwnProfile(uid);
+    fetchUserData();
+    fetchUserRunData();
+  }, []);
 
-    fetch(`http://localhost:3000/api/get-user-data?uid=${uid}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      .then((res) => {
-        if (!res.ok) {
-          res.json().then((r) => console.log("Error:", r.error));
-          return;
+  const checkIfOwnProfile = (userUid: string) => {
+    auth
+      .setPersistence(browserLocalPersistence)
+      .then(() => {
+        console.log("Persistence set");
+        const user = auth.currentUser;
+        if (user && user.uid === userUid) {
+          setIsOwnProfile(true);
+          console.log("Own profile");
         }
-        res.json().then((text) => {
-          console.log(text.success);
-          console.log(text.runsData);
-          setUserRunData(text.runsData);
-        });
       })
       .catch((error) => {
         console.log(error);
       });
+  };
 
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setUserData(user); // TODO: change it to get userData from database
-        if (user && user.uid === uid) {
-          setIsOwnProfile(true);
-          console.log("Own profile");
-        }
-
-        // setUserUid(user.uid);
-        // setUser(user);
-        // setUserDisplayName(user.displayName);
-        // setUserPhotoUrl(user.photoURL);
-        // console.log(user);
-      } else {
-        console.log("no user");
-        getUserByUid(uid)
-          .then((user) => {
-            console.log(user);
-            setUserData(user.userData);
-          })
-          .catch((error) => {
-            console.log(error);
-          });
+  const fetchUserData = () => {
+    console.log(
+      `http://127.0.0.1:5001/track-run-b9950/europe-west1/getUserData?uid=${uid}`
+    );
+    fetch(
+      `http://127.0.0.1:5001/track-run-b9950/europe-west1/getUserData?uid=${uid}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
       }
-    });
-  }, []);
+    )
+      .then((response) => response.json())
+      .then((result) => {
+        console.log(result);
+        setUserData(result.userData);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
+  const fetchUserRunData = () => {
+    console.log(
+      `http://127.0.0.1:5001/track-run-b9950/europe-west1/getUserRunData?uid=${uid}`
+    );
+    fetch(
+      `http://127.0.0.1:5001/track-run-b9950/europe-west1/getUserRunData?uid=${uid}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    )
+      .then((response) => response.json())
+      .then((result) => {
+        console.log(result);
+        setUserRunData(result.runData);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
 
   const handleLogout = () => {
     console.log("Logout clicked");
@@ -159,15 +180,17 @@ export default function UserPage() {
 
   return (
     <div>
-      <button onClick={() => handleLogout()}>sign out</button>
       {userData ? (
         <div>
+          <Header />
+          <h2>Joined: {userData.createdAt}</h2>
           <h1>{userData.displayName}</h1>
           <img src={userData.photoURL} alt="" />
         </div>
       ) : (
         <h1>Loading...</h1>
       )}
+      <button onClick={() => handleLogout()}>sign out</button>
 
       {isOwnProfile && (
         <div>
@@ -201,10 +224,6 @@ export default function UserPage() {
               <p>Run date: {run.runDate}</p>
               <p>Run distance: {run.runDistanceKm} km</p>
               <p>Run average pace: {run.runAveragePace} min/km</p>
-
-              <p>
-                Run time: {run.runTimeHours} hours {run.runTimeMinutes} minutes
-              </p>
             </div>
           ))}
         </div>
