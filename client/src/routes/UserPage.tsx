@@ -1,12 +1,15 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 
-import { logOut, auth, getUserByUid } from "../firebase/firebase";
+import { logOut, auth } from "../firebase/firebase";
 
 import { useState, useEffect } from "react";
 import { browserLocalPersistence } from "firebase/auth";
 import Header from "../components/UserPage/Header";
 
 import "./index.css";
+import styles from "./UserPage.module.css";
+
+import HeaderContext from "../contexts/HeaderContext";
 
 export default function UserPage() {
   const { userUid: uid } = useParams();
@@ -23,11 +26,18 @@ export default function UserPage() {
 
   const navigate = useNavigate();
 
+  const { hash } = useLocation();
+
+  useEffect(() => {
+    console.log(hash);
+  }, [hash]);
+
   useEffect(() => {
     if (!uid) {
       console.log("No uid");
       return;
     }
+
     checkIfOwnProfile(uid);
     fetchUserData();
     fetchUserRunData();
@@ -50,9 +60,9 @@ export default function UserPage() {
   };
 
   const fetchUserData = () => {
-    console.log(
-      `http://127.0.0.1:5001/track-run-b9950/europe-west1/getUserData?uid=${uid}`
-    );
+    // console.log(
+    //   `http://127.0.0.1:5001/track-run-b9950/europe-west1/getUserData?uid=${uid}`
+    // );
     fetch(
       `http://127.0.0.1:5001/track-run-b9950/europe-west1/getUserData?uid=${uid}`,
       {
@@ -64,7 +74,7 @@ export default function UserPage() {
     )
       .then((response) => response.json())
       .then((result) => {
-        console.log(result);
+        // console.log(result);
         setUserData(result.userData);
       })
       .catch((error) => {
@@ -73,9 +83,9 @@ export default function UserPage() {
   };
 
   const fetchUserRunData = () => {
-    console.log(
-      `http://127.0.0.1:5001/track-run-b9950/europe-west1/getUserRunData?uid=${uid}`
-    );
+    // console.log(
+    //   `http://127.0.0.1:5001/track-run-b9950/europe-west1/getUserRunData?uid=${uid}`
+    // );
     fetch(
       `http://127.0.0.1:5001/track-run-b9950/europe-west1/getUserRunData?uid=${uid}`,
       {
@@ -87,7 +97,7 @@ export default function UserPage() {
     )
       .then((response) => response.json())
       .then((result) => {
-        console.log(result);
+        // console.log(result);
         setUserRunData(result.runData);
       })
       .catch((error) => {
@@ -179,13 +189,17 @@ export default function UserPage() {
   };
 
   return (
-    <div>
+    <div className={styles.container}>
       {userData ? (
         <div>
-          <Header />
-          <h2>Joined: {userData.createdAt}</h2>
-          <h1>{userData.displayName}</h1>
-          <img src={userData.photoURL} alt="" />
+          <HeaderContext.Provider
+            value={{
+              displayName: userData.displayName,
+              photoURL: userData.photoURL,
+            }}
+          >
+            <Header />
+          </HeaderContext.Provider>
         </div>
       ) : (
         <h1>Loading...</h1>
