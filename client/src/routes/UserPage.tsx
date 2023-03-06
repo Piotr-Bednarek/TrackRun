@@ -10,6 +10,7 @@ import "./index.css";
 import styles from "./UserPage.module.css";
 
 import HeaderContext from "../contexts/HeaderContext";
+import Dashboard from "../components/UserPage/Dashboard";
 
 export default function UserPage() {
   const { userUid: uid } = useParams();
@@ -191,25 +192,23 @@ export default function UserPage() {
   return (
     <div className={styles.container}>
       {userData ? (
-        <div>
-          <HeaderContext.Provider
-            value={{
-              displayName: userData.displayName,
-              photoURL: userData.photoURL,
-            }}
-          >
-            <Header />
-          </HeaderContext.Provider>
-        </div>
+        <HeaderContext.Provider
+          value={{
+            displayName: userData.displayName,
+            photoURL: userData.photoURL,
+            isOwnProfile: isOwnProfile,
+          }}
+        >
+          <Header />
+        </HeaderContext.Provider>
       ) : (
         <h1>Loading...</h1>
       )}
-      <button onClick={() => handleLogout()}>sign out</button>
 
-      {isOwnProfile && (
+      <Dashboard />
+
+      {/* {isOwnProfile && (
         <div>
-          <p>Own profile</p>
-          <h1>Runs</h1>
           <form onSubmit={(e) => handleLogNewRun(e)}>
             <input
               onChange={(e) => updateDistnaceKmInput(e)}
@@ -230,8 +229,8 @@ export default function UserPage() {
           </form>
           <p>Average pace: {averagePace} min/km</p>
         </div>
-      )}
-      {userRunData && (
+      )} */}
+      {/* {userRunData && (
         <div>
           {userRunData.map((run: any, idx: number) => (
             <div key={idx}>
@@ -241,7 +240,8 @@ export default function UserPage() {
             </div>
           ))}
         </div>
-      )}
+      )} */}
+      <button onClick={() => handleLogout()}>sign out</button>
     </div>
   );
 }
