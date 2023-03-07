@@ -1,11 +1,14 @@
 #root {
+  box-sizing: border-box;
   padding: 1rem;
   /* width: calc(100%-1rem);
   height: calc(100%-1rem); */
-  background-color: #1d1d1d;
+  background-color: hsl(0, 0%, 11%);
+  height: 100vh;
 }
 
 body {
   margin: 0;
   padding: 0;
+  overflow: hidden;
 }
