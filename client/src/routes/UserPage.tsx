@@ -4,13 +4,13 @@ import { logOut, auth } from "../firebase/firebase";
 
 import { useState, useEffect } from "react";
 import { browserLocalPersistence } from "firebase/auth";
-import Header from "../components/UserPage/Header";
+import Header from "../components/UserPage/Header/Header";
 
 import "./index.css";
 import styles from "./UserPage.module.css";
 
 import HeaderContext from "../contexts/HeaderContext";
-import Dashboard from "../components/UserPage/Dashboard";
+import Dashboard from "../components/UserPage/Dashboard/Dashboard";
 
 export default function UserPage() {
   const { userUid: uid } = useParams();
