@@ -12,3 +12,7 @@ body {
   padding: 0;
   /* overflow: hidden; */
 }
+
+.MuiDrawer-docked {
+  width: 0% !important;
+}
