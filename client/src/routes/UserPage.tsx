@@ -4,13 +4,15 @@ import { logOut, auth } from "../firebase/firebase";
 
 import { useState, useEffect } from "react";
 import { browserLocalPersistence } from "firebase/auth";
-import Header from "../components/UserPage/Header/Header";
 
 import "./index.css";
-import styles from "./UserPage.module.css";
 
 import HeaderContext from "../contexts/HeaderContext";
-import Dashboard from "../components/UserPage/Dashboard/Dashboard";
+import { Box, Grid, Paper, Stack } from "@mui/material";
+
+import NavigationDrawer from "../components/NavigationDrawer";
+import UserPageAppBar from "../components/UserPageAppBar";
+import RunList from "../components/RunList";
 
 export default function UserPage() {
   const { userUid: uid } = useParams();
@@ -29,9 +31,9 @@ export default function UserPage() {
 
   const { hash } = useLocation();
 
-  useEffect(() => {
-    console.log(hash);
-  }, [hash]);
+  // useEffect(() => {
+  //   console.log(hash);
+  // }, [hash]);
 
   useEffect(() => {
     if (!uid) {
@@ -189,59 +191,169 @@ export default function UserPage() {
     calculateAveragePace(distanceKm, timeHours, Number(e.target.value));
   };
 
+  // return (
+  //   <div className={styles.container}>
+  //     {/* <Container
+  //       sx={{ width: "100wh", height: "100vh", backgroundColor: "red" }}
+  //     > */}
+  //     <Navbar></Navbar>
+  //     {/* </Container> */}
+  //     {userData ? (
+  //       <HeaderContext.Provider
+  //         value={{
+  //           displayName: userData.displayName,
+  //           photoURL: userData.photoURL,
+  //           isOwnProfile: isOwnProfile,
+  //         }}
+  //       >
+  //         <Header />
+  //       </HeaderContext.Provider>
+  //     ) : (
+  //       <h1>Loading...</h1>
+  //     )}
+
+  //     <Dashboard />
+
+  //     {/* {isOwnProfile && (
+  //       <div>
+  //         <form onSubmit={(e) => handleLogNewRun(e)}>
+  //           <input
+  //             onChange={(e) => updateDistnaceKmInput(e)}
+  //             type="text"
+  //             placeholder="Run distnace (in km)"
+  //           />
+  //           <input
+  //             onChange={(e) => updateTimeHoursInput(e)}
+  //             type="text"
+  //             placeholder="time hours"
+  //           />
+  //           <input
+  //             onChange={(e) => updateTimeMinutesInput(e)}
+  //             type="text"
+  //             placeholder="time minutes"
+  //           />
+  //           <button>submit</button>
+  //         </form>
+  //         <p>Average pace: {averagePace} min/km</p>
+  //       </div>
+  //     )} */}
+  //     {/* {userRunData && (
+  //       <div>
+  //         {userRunData.map((run: any, idx: number) => (
+  //           <div key={idx}>
+  //             <p>Run date: {run.runDate}</p>
+  //             <p>Run distance: {run.runDistanceKm} km</p>
+  //             <p>Run average pace: {run.runAveragePace} min/km</p>
+  //           </div>
+  //         ))}
+  //       </div>
+  //     )} */}
+  //     <button onClick={() => handleLogout()}>sign out</button>
+  //   </div>
+  // );
+
+  const [open, setOpen] = useState(true);
+  const drawerWidthOpen = "200px";
+  const drawerWidthClosed = "50px";
+
+  const toggleDrawer = () => {
+    setOpen(!open);
+  };
+
+  const headerHeight = "4rem";
+
   return (
-    <div className={styles.container}>
-      {userData ? (
-        <HeaderContext.Provider
-          value={{
-            displayName: userData.displayName,
-            photoURL: userData.photoURL,
-            isOwnProfile: isOwnProfile,
+    <Box
+      sx={{
+        display: "flex",
+        backgroundColor: "blue",
+        width: "100%",
+        height: "100%",
+      }}
+    >
+      {/* {userData && ( */}
+      <HeaderContext.Provider
+        value={{
+          displayName: userData?.displayName,
+          photoURL: userData?.photoURL,
+          isOwnProfile: isOwnProfile,
+        }}
+      >
+        <UserPageAppBar height={headerHeight} />
+      </HeaderContext.Provider>
+      {/* )} */}
+      <Box
+        sx={{
+          // background: "green",
+          marginTop: headerHeight,
+          width: "100%",
+          display: "flex",
+          boxSizing: "border-box",
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            background: "rgb(39, 39, 39)",
+            // flexDirection: "column",
+            backgroundColor: "green",
+            flexGrow: 1,
           }}
         >
-          <Header />
-        </HeaderContext.Provider>
-      ) : (
-        <h1>Loading...</h1>
-      )}
-
-      <Dashboard />
-
-      {/* {isOwnProfile && (
-        <div>
-          <form onSubmit={(e) => handleLogNewRun(e)}>
-            <input
-              onChange={(e) => updateDistnaceKmInput(e)}
-              type="text"
-              placeholder="Run distnace (in km)"
-            />
-            <input
-              onChange={(e) => updateTimeHoursInput(e)}
-              type="text"
-              placeholder="time hours"
-            />
-            <input
-              onChange={(e) => updateTimeMinutesInput(e)}
-              type="text"
-              placeholder="time minutes"
-            />
-            <button>submit</button>
-          </form>
-          <p>Average pace: {averagePace} min/km</p>
-        </div>
-      )} */}
-      {/* {userRunData && (
-        <div>
-          {userRunData.map((run: any, idx: number) => (
-            <div key={idx}>
-              <p>Run date: {run.runDate}</p>
-              <p>Run distance: {run.runDistanceKm} km</p>
-              <p>Run average pace: {run.runAveragePace} min/km</p>
-            </div>
-          ))}
-        </div>
-      )} */}
-      <button onClick={() => handleLogout()}>sign out</button>
-    </div>
+          {/* <Box
+            sx={{
+              borderRight: "2px solid rgb(77, 77, 77)",
+            }}
+          >
+            {/* <div
+              style={{
+                backgroundColor: "red",
+                display: "flex",
+                alignItems: "center",
+                background: "rgb(59, 59, 59)",
+              }}
+            // ></div>
+          </Box> */}
+          <Box
+            component="main"
+            sx={{
+              flexGrow: 1,
+              // marginTop: "4rem",
+              backgroundColor: "rgb(39, 39, 39)",
+              marginLeft: open ? drawerWidthOpen : drawerWidthClosed,
+              // transition: "margin-left 0.1s ease-in-out",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              boxSizing: "border-box",
+            }}
+          >
+            <Box
+              sx={{
+                background: "rgb(21, 21, 21)",
+                boxSizing: "border-box",
+                flexGrow: 1,
+                height: "calc(100% - 2rem)",
+                m: 2,
+                p: 2,
+                color: "white",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                borderRadius: "0.5rem",
+              }}
+            >
+              <RunList />
+            </Box>
+          </Box>
+        </Box>
+        <NavigationDrawer
+          widthClosed={drawerWidthClosed}
+          widthOpen={drawerWidthOpen}
+          open={open}
+          toggleDrawer={toggleDrawer}
+        />
+      </Box>
+    </Box>
   );
 }
