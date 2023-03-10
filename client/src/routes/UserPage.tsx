@@ -4,32 +4,15 @@ import { logOut, auth } from "../firebase/firebase";
 
 import { useState, useEffect } from "react";
 import { browserLocalPersistence } from "firebase/auth";
-import Header from "../components/UserPage/Header/Header";
 
 import "./index.css";
-import styles from "./UserPage.module.css";
 
 import HeaderContext from "../contexts/HeaderContext";
-import Dashboard from "../components/UserPage/Dashboard/Dashboard";
-import {
-  AppBar,
-  Avatar,
-  Box,
-  Button,
-  CssBaseline,
-  Divider,
-  Drawer,
-  Grid,
-  IconButton,
-  Typography,
-} from "@mui/material";
-import { Container, height, maxHeight } from "@mui/system";
-import SvgIcon from "@mui/material/SvgIcon";
-import Navbar from "../Navbar";
-import NavigationDrawer from "../components/UserPage/Header/NavigationDrawer";
+import { Box, Grid, Paper, Stack } from "@mui/material";
 
-import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
-import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
+import NavigationDrawer from "../components/NavigationDrawer";
+import UserPageAppBar from "../components/UserPageAppBar";
+import RunList from "../components/RunList";
 
 export default function UserPage() {
   const { userUid: uid } = useParams();
@@ -48,9 +31,9 @@ export default function UserPage() {
 
   const { hash } = useLocation();
 
-  useEffect(() => {
-    console.log(hash);
-  }, [hash]);
+  // useEffect(() => {
+  //   console.log(hash);
+  // }, [hash]);
 
   useEffect(() => {
     if (!uid) {
@@ -269,14 +252,15 @@ export default function UserPage() {
   //   </div>
   // );
 
-  const svgPath =
-    "M320 48a48 48 0 1 0 -96 0 48 48 0 1 0 96 0zM125.7 175.5c9.9-9.9 23.4-15.5 37.5-15.5c1.9 0 3.8 .1 5.6 .3L137.6 254c-9.3 28 1.7 58.8 26.8 74.5l86.2 53.9-25.4 88.8c-4.9 17 5 34.7 22 39.6s34.7-5 39.6-22l28.7-100.4c5.9-20.6-2.6-42.6-20.7-53.9L238 299l30.9-82.4 5.1 12.3C289 264.7 323.9 288 362.7 288H384c17.7 0 32-14.3 32-32s-14.3-32-32-32H362.7c-12.9 0-24.6-7.8-29.5-19.7l-6.3-15c-14.6-35.1-44.1-61.9-80.5-73.1l-48.7-15c-11.1-3.4-22.7-5.2-34.4-5.2c-31 0-60.8 12.3-82.7 34.3L57.4 153.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l23.1-23.1zM91.2 352H32c-17.7 0-32 14.3-32 32s14.3 32 32 32h69.6c19 0 36.2-11.2 43.9-28.5L157 361.6l-9.5-6c-17.5-10.9-30.5-26.8-37.9-44.9L91.2 352z";
-
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
+  const drawerWidthOpen = "200px";
+  const drawerWidthClosed = "50px";
 
   const toggleDrawer = () => {
     setOpen(!open);
   };
+
+  const headerHeight = "4rem";
 
   return (
     <Box
@@ -287,166 +271,89 @@ export default function UserPage() {
         height: "100%",
       }}
     >
-      <AppBar
+      {/* {userData && ( */}
+      <HeaderContext.Provider
+        value={{
+          displayName: userData?.displayName,
+          photoURL: userData?.photoURL,
+          isOwnProfile: isOwnProfile,
+        }}
+      >
+        <UserPageAppBar height={headerHeight} />
+      </HeaderContext.Provider>
+      {/* )} */}
+      <Box
         sx={{
-          zIndex: (theme) => theme.zIndex.drawer + 1,
-          height: "4rem",
+          // background: "green",
+          marginTop: headerHeight,
+          width: "100%",
+          display: "flex",
           boxSizing: "border-box",
         }}
       >
         <Box
           sx={{
             display: "flex",
-            backgroundColor: "red",
-            height: "100%",
-            alignItems: "center",
-            justifyContent: "space-between",
+            background: "rgb(39, 39, 39)",
+            // flexDirection: "column",
+            backgroundColor: "green",
             flexGrow: 1,
-            px: 2,
-            gap: 2,
           }}
         >
-          <Box
+          {/* <Box
             sx={{
-              display: "flex",
-              alignItems: "center",
+              borderRight: "2px solid rgb(77, 77, 77)",
             }}
           >
-            <SvgIcon
-              fontSize="large"
-              sx={{ fill: "white", mr: 2 }}
-              viewBox="0 0 512 512"
-            >
-              <path d={svgPath} />
-            </SvgIcon>
-            <Typography
-              sx={{
-                fontWeight: "bold",
-                fontStyle: "italic",
-                fontSize: "1.5rem",
+            {/* <div
+              style={{
+                backgroundColor: "red",
+                display: "flex",
+                alignItems: "center",
+                background: "rgb(59, 59, 59)",
               }}
-            >
-              TrackRun
-            </Typography>
-          </Box>
-          <Avatar
-            src={
-              "https://lh3.googleusercontent.com/a/AGNmyxbcaXwpMhwvHSAMhAlJEEiWAcKWoEckZQqElq8HpA=s96-c"
-            }
-            sx={{ width: 52, height: 52 }}
-          />
-        </Box>
-      </AppBar>
-      <Box
-        sx={{
-          background: "green",
-          marginTop: "4rem",
-          width: "100%",
-          display: "flex",
-        }}
-      >
-        <Box
-          sx={{
-            display: "flex",
-            background: "dodgerblue",
-            // flexDirection: "column",
-            flexGrow: 1,
-          }}
-        >
-          <IconButton
-            sx={{ height: "50px", display: open ? "none" : "block" }}
-            onClick={toggleDrawer}
-          >
-            <ArrowForwardIosIcon />
-          </IconButton>
+            // ></div>
+          </Box> */}
           <Box
             component="main"
             sx={{
               flexGrow: 1,
-              backgroundColor: "pink",
-              marginLeft: open ? "100px" : 0,
-              transition: "margin-left 0.2s ease-in-out",
+              // marginTop: "4rem",
+              backgroundColor: "rgb(39, 39, 39)",
+              marginLeft: open ? drawerWidthOpen : drawerWidthClosed,
+              // transition: "margin-left 0.1s ease-in-out",
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
+              boxSizing: "border-box",
             }}
-          >
-            <div>TESTING</div>
-          </Box>
-
-          <Drawer
-            hideBackdrop={true}
-            sx={{
-              transition: "width 0.2s ease-in-out",
-              height: "100%",
-              width: open ? "200px" : "50px",
-              flexShrink: 0,
-              "& .MuiDrawer-paper": {
-                width: open ? "200px" : "50px",
-                height: "100%",
-                marginTop: "4rem",
-              },
-            }}
-            variant="persistent"
-            anchor="left"
-            open={open}
           >
             <Box
               sx={{
+                background: "rgb(21, 21, 21)",
+                boxSizing: "border-box",
+                flexGrow: 1,
+                height: "calc(100% - 2rem)",
+                m: 2,
+                p: 2,
+                color: "white",
                 display: "flex",
-                flexDirection: "column",
-                background: "dodgerblue",
-                width: "100%",
-                height: "100%",
+                justifyContent: "center",
+                alignItems: "center",
+                borderRadius: "0.5rem",
               }}
             >
-              <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                {/* <Button onClick={toggleDrawer}>CLOSE</Button> */}
-                <IconButton
-                  sx={{ height: "50px", display: open ? "block" : "none" }}
-                  onClick={toggleDrawer}
-                >
-                  <ArrowBackIosNewIcon />
-                </IconButton>
-              </div>
-              <Divider />
-              <Box
-                sx={{
-                  background: "green",
-                  flexGrow: 1,
-                  display: "flex",
-                  justifyContent: "center",
-                }}
-              ></Box>
+              <RunList />
             </Box>
-          </Drawer>
+          </Box>
         </Box>
+        <NavigationDrawer
+          widthClosed={drawerWidthClosed}
+          widthOpen={drawerWidthOpen}
+          open={open}
+          toggleDrawer={toggleDrawer}
+        />
       </Box>
-      {/* <Drawer
-        variant="permanent"
-        open={true}
-        sx={{
-          flexShrink: 0,
-          width: "240px",
-          zIndex: (theme) => theme.zIndex.drawer,
-          "& .MuiDrawer-paper": {
-            width: "240px",
-            boxSizing: "border-box",
-            marginTop: "4rem", // add margin to the top
-          },
-        }}
-      >
-        TEST
-      </Drawer> */}
-
-      {/* <Button
-          sx={{ display: open ? "none" : "block" }}
-          onClick={toggleDrawer}
-        >
-          O
-        </Button> */}
     </Box>
   );
 }
-
-// const gridStyles = ;s
