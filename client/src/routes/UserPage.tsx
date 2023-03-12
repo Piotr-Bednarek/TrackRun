@@ -1,6 +1,6 @@
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 
-import { logOut, auth } from "../firebase/firebase";
+import { logOut, auth, functions } from "../firebase/firebase";
 
 import { useState, useEffect } from "react";
 import { browserLocalPersistence } from "firebase/auth";
@@ -13,6 +13,7 @@ import { Box, Grid, Paper, Stack } from "@mui/material";
 import NavigationDrawer from "../components/NavigationDrawer";
 import UserPageAppBar from "../components/UserPageAppBar";
 import RunList from "../components/RunList";
+import { httpsCallable } from "firebase/functions";
 
 export default function UserPage() {
   const { userUid: uid } = useParams();
@@ -34,17 +35,6 @@ export default function UserPage() {
   // useEffect(() => {
   //   console.log(hash);
   // }, [hash]);
-
-  useEffect(() => {
-    if (!uid) {
-      console.log("No uid");
-      return;
-    }
-
-    checkIfOwnProfile(uid);
-    fetchUserData();
-    fetchUserRunData();
-  }, []);
 
   const checkIfOwnProfile = (userUid: string) => {
     auth
@@ -77,7 +67,7 @@ export default function UserPage() {
     )
       .then((response) => response.json())
       .then((result) => {
-        // console.log(result);
+        console.log(result.userData);
         setUserData(result.userData);
       })
       .catch((error) => {
@@ -85,28 +75,49 @@ export default function UserPage() {
       });
   };
 
-  const fetchUserRunData = () => {
-    // console.log(
-    //   `http://127.0.0.1:5001/track-run-b9950/europe-west1/getUserRunData?uid=${uid}`
-    // );
-    fetch(
-      `http://127.0.0.1:5001/track-run-b9950/europe-west1/getUserRunData?uid=${uid}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    )
-      .then((response) => response.json())
-      .then((result) => {
-        // console.log(result);
-        setUserRunData(result.runData);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  };
+  useEffect(() => {
+    if (!uid) {
+      console.log("No uid");
+      return;
+    }
+
+    checkIfOwnProfile(uid);
+    fetchUserData();
+
+    // fetchUserData();
+    // fetchUserRunData();
+  }, [uid]);
+
+  // useEffect(() => {
+  //   if (uid === "undefined") {
+  //     console.log("No uid");
+  //     return;
+  //   }
+
+  // }, [uid]);
+
+  // const fetchUserRunData = () => {
+  //   // console.log(
+  //   //   `http://127.0.0.1:5001/track-run-b9950/europe-west1/getUserRunData?uid=${uid}`
+  //   // );
+  //   fetch(
+  //     `http://127.0.0.1:5001/track-run-b9950/europe-west1/getUserRunData?uid=${uid}`,
+  //     {
+  //       method: "GET",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //     }
+  //   )
+  //     .then((response) => response.json())
+  //     .then((result) => {
+  //       // console.log(result);
+  //       setUserRunData(result.runData);
+  //     })
+  //     .catch((error) => {
+  //       console.log(error);
+  //     });
+  // };
 
   const handleLogout = () => {
     console.log("Logout clicked");
@@ -252,7 +263,7 @@ export default function UserPage() {
   //   </div>
   // );
 
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
   const drawerWidthOpen = "200px";
   const drawerWidthClosed = "50px";
 

@@ -20,11 +20,15 @@ const firebaseConfig = {
 
 // import "firebase/firestore";
 import { getDoc, doc, getFirestore } from "firebase/firestore";
+import { getFunctions, connectFunctionsEmulator } from "firebase/functions";
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
 const db = getFirestore(app);
+
+const functions = getFunctions(app, "europe-west1");
+connectFunctionsEmulator(functions, "localhost", 5001);
 
 setPersistence(auth, browserLocalPersistence)
   .then(() => {
@@ -81,4 +85,4 @@ const getUserByUid = async (uid: string) => {
   }
 };
 
-export { signInWithGoogle, logOut, auth, getUserByUid };
+export { signInWithGoogle, logOut, auth, getUserByUid, functions };

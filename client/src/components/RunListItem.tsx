@@ -1,12 +1,12 @@
 import { Paper, Grid, Typography } from "@mui/material";
 interface RunListItemProps {
   runDate: any;
-  distance: string;
-  averagePace: string;
+  distanceKm: number;
+  totalTimeMin: number;
 }
 
 function RunListItem(props: RunListItemProps) {
-  const { runDate, distance, averagePace } = props;
+  const { runDate, distanceKm, totalTimeMin } = props;
 
   const date = new Date(runDate._seconds * 1000);
 
@@ -43,10 +43,10 @@ function RunListItem(props: RunListItemProps) {
             }}
           >
             <Grid xs={12} item>
-              Distance: {distance}
+              Distance: {distanceKm} km
             </Grid>
             <Grid xs={12} item>
-              Average pace: {averagePace}
+              total time: {totalTimeMin} min
             </Grid>
           </Paper>
         </Grid>

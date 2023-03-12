@@ -7,30 +7,97 @@ import {
   DialogTitle,
   TextField,
 } from "@mui/material";
+import { httpsCallable } from "firebase/functions";
 import React, { useState } from "react";
+import { functions } from "../firebase/firebase";
 
 interface Props {
+  uid: string;
   open: boolean;
   toggleDialog: (open: boolean) => void;
 }
 
 export default function FormDialog(props: Props) {
-  const { open, toggleDialog } = props;
+  const { uid, open, toggleDialog } = props;
 
   const handleSubmit = () => {
-    console.log(distanceKm, timeHours, timeMinutes);
-    toggleDialog(false);
+    if (!distanceKm) {
+      setDistanceError(true);
+      setDistanceErrorText("Please enter a distance");
+      return;
+    }
 
-    updateDistanceKm(0);
-    updateTimeMinutes(0);
-    updateTimeMinutes(0);
+    if (!timeHours && !timeMinutes) {
+      setTimeHoursError(true);
+      setTimeHoursErrorText("Please enter a time");
+      setTimeMinutesError(true);
+      setTimeMinutesErrorText("Please enter a time");
+      return;
+    }
+
+    // console.log(distanceKm, timeHours, timeMinutes);
+
+    handleLogNewRun();
+
+    cleanUp();
   };
 
-  const [distanceKm, updateDistanceKm] = useState<number>();
-  const [timeHours, updateTimeHours] = useState<number>();
-  const [timeMinutes, updateTimeMinutes] = useState<number>();
+  const handleNewRun = httpsCallable(functions, "handleNewRunCallable");
 
+  const handleLogNewRun = async () => {
+    console.log("handleLogNewRun called");
+    console.log("uid: ", uid);
+
+    const totalTimeInMinutes =
+      (parseInt(timeHours || "0") ?? 0) * 60 +
+      (parseInt(timeMinutes || "0") ?? 0);
+
+    console.log("totalTimeInMinutes: ", totalTimeInMinutes);
+
+    const runData = {
+      distanceKm: parseFloat(distanceKm),
+      totalTimeMin: totalTimeInMinutes,
+    };
+
+    try {
+      const response = await handleNewRun({
+        uid: uid,
+        runData,
+      });
+      console.log(response);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const cleanUp = () => {
+    toggleDialog(false);
+
+    updateDistanceKm("");
+    updateTimeHours("");
+    updateTimeMinutes("");
+
+    setDistanceError(false);
+    setDistanceErrorText("");
+    setTimeHoursError(false);
+    setTimeHoursErrorText("");
+    setTimeMinutesError(false);
+    setTimeMinutesErrorText("");
+  };
+
+  const [distanceKm, updateDistanceKm] = useState<string>("");
+  const [timeHours, updateTimeHours] = useState<string>("");
+  const [timeMinutes, updateTimeMinutes] = useState<string>("");
   const [averagePace, updateAveragePace] = useState<number>();
+
+  const [distanceError, setDistanceError] = useState(false);
+  const [distnaceErrorText, setDistanceErrorText] = useState<string>("");
+
+  const [timeHoursError, setTimeHoursError] = useState(false);
+  const [timeHoursErrorText, setTimeHoursErrorText] = useState<string>("");
+
+  const [timeMinutesError, setTimeMinutesError] = useState(false);
+  const [timeMinutesErrorText, setTimeMinutesErrorText] = useState<string>("");
 
   const calculateAveragePace = (
     distance_km: any,
@@ -38,9 +105,11 @@ export default function FormDialog(props: Props) {
     time_minutes: any
   ) => {
     if (!distance_km) {
+      updateAveragePace(0);
       return;
     }
     if (!time_hours && !time_minutes) {
+      updateAveragePace(0);
       return;
     }
 
@@ -56,24 +125,43 @@ export default function FormDialog(props: Props) {
     }
 
     const paceMinPerKm = minutes / distance_km;
-    console.log("minutes: ", minutes);
-    console.log("pace: ", paceMinPerKm);
+    // console.log("minutes: ", minutes);
+    // console.log("pace: ", paceMinPerKm);
     updateAveragePace(paceMinPerKm);
   };
 
-  const updateDistnaceKmInput = (value: string) => {
-    updateDistanceKm(Number(value));
-    calculateAveragePace(Number(value), timeHours, timeMinutes);
+  const updateDistanceKmInput = (value: string) => {
+    if (distanceError) {
+      setDistanceError(false);
+      setDistanceErrorText("");
+    }
+    // console.log("value: ", value);
+    updateDistanceKm(value);
+    // if (!value.endsWith(".")) {
+    calculateAveragePace(parseFloat(value), timeHours, timeMinutes);
+    // }
   };
 
   const updateTimeHoursInput = (value: string) => {
-    updateTimeHours(Number(value));
-    calculateAveragePace(distanceKm, Number(value), timeMinutes);
+    if (timeHoursError) {
+      setTimeHoursError(false);
+      setTimeHoursErrorText("");
+    }
+
+    // console.log("value: ", value);
+    updateTimeHours(value);
+    calculateAveragePace(distanceKm, parseFloat(value), timeMinutes);
   };
 
   const updateTimeMinutesInput = (value: string) => {
-    updateTimeMinutes(Number(value));
-    calculateAveragePace(distanceKm, timeHours, Number(value));
+    if (timeMinutesError) {
+      setTimeMinutesError(false);
+      setTimeMinutesErrorText("");
+    }
+
+    // console.log("value: ", value);
+    updateTimeMinutes(value);
+    calculateAveragePace(distanceKm, timeHours, parseFloat(value));
   };
 
   return (
@@ -86,31 +174,59 @@ export default function FormDialog(props: Props) {
           margin="dense"
           id="distance"
           label="Distance (km)"
-          type="number"
+          type="text"
           fullWidth
           value={distanceKm || ""}
-          onChange={(e) => updateDistnaceKmInput(e.target.value)}
+          onChange={(e) => {
+            const value = e.target.value;
+            if (/^\d*\.?\d{0,1}$/.test(value) || value === "") {
+              updateDistanceKmInput(value);
+            }
+          }}
+          error={distanceError}
+          helperText={distanceError ? distnaceErrorText : ""}
         />
         <TextField
           autoFocus
           margin="dense"
           id="distance"
           label="Time (hours)"
-          type="number"
+          type="text"
           fullWidth
           value={timeHours || ""}
-          onChange={(e) => updateTimeHoursInput(e.target.value)}
+          onChange={(e) => {
+            const value = e.target.value;
+            if (/^[1-9]\d*$/.test(value) || value === "") {
+              updateTimeHoursInput(value);
+            }
+          }}
+          error={timeHoursError}
+          helperText={timeHoursError ? timeHoursErrorText : ""}
         />
         <TextField
           autoFocus
           margin="dense"
           id="distance"
           label="Time (minutes)"
-          type="number"
+          type="text"
           fullWidth
           value={timeMinutes || ""}
-          onChange={(e) => updateTimeMinutesInput(e.target.value)}
+          onChange={(e) => {
+            const value = e.target.value;
+            if (/^[1-9]\d*$/.test(value) || value === "") {
+              updateTimeMinutesInput(value);
+            }
+          }}
+          error={timeMinutesError}
+          helperText={timeMinutesError ? timeMinutesErrorText : ""}
         />
+        avg pace: {averagePace} min/km
+        <br />
+        distnace: {distanceKm}
+        <br />
+        timeHours: {timeHours}
+        <br />
+        timeMinutes: {timeMinutes}
       </DialogContent>
       <DialogActions>
         <Button onClick={handleSubmit}>Submit</Button>
