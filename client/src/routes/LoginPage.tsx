@@ -6,9 +6,12 @@ import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../firebase/firebase";
 import { useState, useEffect } from "react";
 
+import { httpsCallable } from "firebase/functions";
+import { functions } from "../firebase/firebase";
+
 export default function LoginPage() {
   const [user, setUser] = useState<any>(null);
-  const [userUid, setUserUid] = useState("");
+  const [uid, setUid] = useState("");
   const [userDisplayName, setUserDisplayName] = useState("");
 
   const [userPhotoUrl, setUserPhotoUrl] = useState("");
@@ -19,31 +22,36 @@ export default function LoginPage() {
 
   // name a function that will handle the login api call
 
-  const handleLoginApiCall = async () => {
-    const user = auth.currentUser;
+  const handleUserLogin = httpsCallable(functions, "handleUserLoginCallable");
 
-    if (!user) {
-      return;
-    }
+  // const handleLoginApiCall = async () => {
+  //   const user = auth.currentUser;
 
-    user.getIdToken().then((idToken: string) => {
-      fetch("http://localhost:3000/api/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ idToken: idToken }),
-      })
-        .then((res) => {
-          res.json().then((text) => {
-            console.log(text.success);
-          });
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    });
-  };
+  //   if (!user) {
+  //     return;
+  //   }
+
+  //   await user.getIdToken().then((idToken: string) => {
+  //     fetch(
+  //       "http://127.0.0.1:5001/track-run-b9950/europe-west1/handleUserLogin",
+  //       {
+  //         method: "POST",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //         body: JSON.stringify({ idToken: idToken }),
+  //       }
+  //     )
+  //       .then((res) => res.json())
+  //       .then((data) => {
+  //         console.log(data);
+  //         setUid(data.uid);
+  //       })
+  //       .catch((error) => {
+  //         console.log(error);
+  //       });
+  //   });
+  // };
 
   const handleLogin = async () => {
     console.log("Login clicked");
@@ -52,11 +60,22 @@ export default function LoginPage() {
     setMessage(result.message);
     setUser(result.user);
 
-    handleLoginApiCall();
-
-    if (result.user?.uid) {
-      console.log(result.user?.uid);
-      navigate("/user/" + result.user?.uid);
+    try {
+      const idToken = await result.user?.getIdToken();
+      // console.log(idToken);
+      const response = await handleUserLogin({ idToken });
+      console.log(response);
+      const data = response.data as { uid: string };
+      console.log(data.uid);
+      setUid(data.uid);
+      if (result.user?.uid) {
+        console.log(result.user?.uid);
+        // setTimeout(() => {
+        navigate("/user/" + result.user?.uid);
+        // }, 1000);
+      }
+    } catch (error) {
+      console.log("Error! ", error);
     }
   };
 
@@ -64,6 +83,7 @@ export default function LoginPage() {
     <div>
       <button onClick={() => handleLogin()}>sign in with google</button>
       <p>{message}</p>
+      <p>{uid}</p>
     </div>
   );
 }

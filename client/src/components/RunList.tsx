@@ -40,7 +40,7 @@ function RunList() {
     )
       .then((response) => response.json())
       .then((result) => {
-        // console.log(result.runData);
+        console.log(result.runData);
         setUserRunData(result.runData);
       })
       .catch((error) => {
@@ -60,15 +60,19 @@ function RunList() {
           Run List
         </Typography>
         <Button onClick={toggleDialog}>ADD</Button>
-        <FormDialog open={formDialogOpen} toggleDialog={toggleDialog} />
+        <FormDialog
+          uid={uid || ""}
+          open={formDialogOpen}
+          toggleDialog={toggleDialog}
+        />
       </Paper>
       {userRunData && userRunData.length > 0 ? (
         userRunData.map((run: any, idx: number) => (
           <RunListItem
             key={idx}
             runDate={run.runDate}
-            distance={run.runDistanceKm}
-            averagePace={run.runAveragePace}
+            distanceKm={run.distanceKm}
+            totalTimeMin={run.totalTimeMin}
           />
         ))
       ) : (
