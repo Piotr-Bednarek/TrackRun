@@ -202,67 +202,6 @@ export default function UserPage() {
     calculateAveragePace(distanceKm, timeHours, Number(e.target.value));
   };
 
-  // return (
-  //   <div className={styles.container}>
-  //     {/* <Container
-  //       sx={{ width: "100wh", height: "100vh", backgroundColor: "red" }}
-  //     > */}
-  //     <Navbar></Navbar>
-  //     {/* </Container> */}
-  //     {userData ? (
-  //       <HeaderContext.Provider
-  //         value={{
-  //           displayName: userData.displayName,
-  //           photoURL: userData.photoURL,
-  //           isOwnProfile: isOwnProfile,
-  //         }}
-  //       >
-  //         <Header />
-  //       </HeaderContext.Provider>
-  //     ) : (
-  //       <h1>Loading...</h1>
-  //     )}
-
-  //     <Dashboard />
-
-  //     {/* {isOwnProfile && (
-  //       <div>
-  //         <form onSubmit={(e) => handleLogNewRun(e)}>
-  //           <input
-  //             onChange={(e) => updateDistnaceKmInput(e)}
-  //             type="text"
-  //             placeholder="Run distnace (in km)"
-  //           />
-  //           <input
-  //             onChange={(e) => updateTimeHoursInput(e)}
-  //             type="text"
-  //             placeholder="time hours"
-  //           />
-  //           <input
-  //             onChange={(e) => updateTimeMinutesInput(e)}
-  //             type="text"
-  //             placeholder="time minutes"
-  //           />
-  //           <button>submit</button>
-  //         </form>
-  //         <p>Average pace: {averagePace} min/km</p>
-  //       </div>
-  //     )} */}
-  //     {/* {userRunData && (
-  //       <div>
-  //         {userRunData.map((run: any, idx: number) => (
-  //           <div key={idx}>
-  //             <p>Run date: {run.runDate}</p>
-  //             <p>Run distance: {run.runDistanceKm} km</p>
-  //             <p>Run average pace: {run.runAveragePace} min/km</p>
-  //           </div>
-  //         ))}
-  //       </div>
-  //     )} */}
-  //     <button onClick={() => handleLogout()}>sign out</button>
-  //   </div>
-  // );
-
   const [open, setOpen] = useState(false);
   const drawerWidthOpen = "200px";
   const drawerWidthClosed = "50px";

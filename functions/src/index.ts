@@ -80,7 +80,7 @@ export const getUserRunData = functions
 
         await userRef
           .collection("runs")
-          .orderBy("runDate", "desc")
+          .orderBy("runDate.seconds", "desc")
           .get()
           .then((snapshot) => {
             const runData: any = [];
@@ -156,9 +156,10 @@ export const handleNewRunCallable = functions
   .https.onCall(async (data, context) => {
     try {
       const uid: string = data.uid;
-      const timestamp = admin.firestore.Timestamp.now();
+      // const timestamp = admin.firestore.Timestamp.now();
 
-      const runData = { ...data.runData, runDate: timestamp };
+      // const runData = { ...data.runData, runDate: timestamp };
+      const runData = { ...data.runData };
 
       // functions.logger.log("uid ", uid);
 

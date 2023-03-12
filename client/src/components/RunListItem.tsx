@@ -1,4 +1,6 @@
 import { Paper, Grid, Typography } from "@mui/material";
+import { Timestamp } from "firebase/firestore";
+
 interface RunListItemProps {
   runDate: any;
   distanceKm: number;
@@ -8,7 +10,18 @@ interface RunListItemProps {
 function RunListItem(props: RunListItemProps) {
   const { runDate, distanceKm, totalTimeMin } = props;
 
-  const date = new Date(runDate._seconds * 1000);
+  // let date: Date | null = null;
+  // let day: number | null = null;
+  // let month: number | null = null;
+  // let year: number | null = null;
+
+  // if (runDate.seconds) {
+  //   date = new Date(runDate.seconds * 1000);
+  // } else if (runDate._seconds) {
+  //   date = new Date(runDate._seconds * 1000);
+  // }
+
+  const date = new Timestamp(runDate.seconds, runDate.nanoseconds).toDate();
 
   const day = date.getDate();
   const month = date.getMonth() + 1;

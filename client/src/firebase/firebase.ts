@@ -85,4 +85,4 @@ const getUserByUid = async (uid: string) => {
   }
 };
 
-export { signInWithGoogle, logOut, auth, getUserByUid, functions };
+export { signInWithGoogle, logOut, auth, getUserByUid, functions, db };
