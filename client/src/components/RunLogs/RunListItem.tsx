@@ -10,17 +10,6 @@ interface RunListItemProps {
 function RunListItem(props: RunListItemProps) {
   const { runDate, distanceKm, totalTimeMin } = props;
 
-  // let date: Date | null = null;
-  // let day: number | null = null;
-  // let month: number | null = null;
-  // let year: number | null = null;
-
-  // if (runDate.seconds) {
-  //   date = new Date(runDate.seconds * 1000);
-  // } else if (runDate._seconds) {
-  //   date = new Date(runDate._seconds * 1000);
-  // }
-
   const date = new Timestamp(runDate.seconds, runDate.nanoseconds).toDate();
 
   const day = date.getDate();

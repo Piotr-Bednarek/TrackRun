@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 import { Button, Paper, Stack, Typography } from "@mui/material";
 import RunListItem from "./RunListItem";
 import FormDialog from "./FormDialog";
-import RunListContext from "../contexts/RunListContext";
+import RunListContext from "../../contexts/RunListContext";
 
 function RunList() {
   const { userUid: uid } = useParams();
@@ -34,27 +34,26 @@ function RunList() {
     });
   };
 
-  const fetchUserRunData = () => {
-    // console.log(
-    //   `http://127.0.0.1:5001/track-run-b9950/europe-west1/getUserRunData?uid=${uid}`
-    // );
-    fetch(
-      `http://127.0.0.1:5001/track-run-b9950/europe-west1/getUserRunData?uid=${uid}`,
-      {
+  const fetchUserRunData = async () => {
+    try {
+      const url = `http://127.0.0.1:5001/track-run-b9950/europe-west1/getUserRunData?uid=${uid}`;
+      const options = {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
         },
-      }
-    )
-      .then((response) => response.json())
-      .then((result) => {
-        console.log(result.runData);
-        setUserRunData(result.runData);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+      };
+
+      const response = await fetch(url, options);
+
+      const result = await response.json();
+
+      console.log(result.runData);
+
+      setUserRunData(result.runData);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (

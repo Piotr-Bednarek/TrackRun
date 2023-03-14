@@ -9,11 +9,11 @@ import {
 } from "@mui/material";
 import { httpsCallable } from "firebase/functions";
 import { useContext, useState } from "react";
-import { functions } from "../firebase/firebase";
+import { functions } from "../../firebase/firebase";
 
-import RunListContext from "../contexts/RunListContext";
+import RunListContext from "../../contexts/RunListContext";
 
-import { db } from "../firebase/firebase";
+import { db } from "../../firebase/firebase";
 import { Timestamp } from "firebase/firestore";
 
 interface Props {
