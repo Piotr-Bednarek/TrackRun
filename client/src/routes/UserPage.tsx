@@ -10,10 +10,11 @@ import "./index.css";
 import HeaderContext from "../contexts/HeaderContext";
 import { Box, Grid, Paper, Stack } from "@mui/material";
 
-import NavigationDrawer from "../components/NavigationDrawer";
+import NavigationDrawer from "../components/Drawer/NavigationDrawer";
 import UserPageAppBar from "../components/UserPageAppBar";
-import RunList from "../components/RunList";
+import RunList from "../components/RunLogs/RunList";
 import { httpsCallable } from "firebase/functions";
+import Dashboard from "../components/Dashboard";
 
 export default function UserPage() {
   const { userUid: uid } = useParams();
@@ -29,8 +30,6 @@ export default function UserPage() {
   const [userRunData, setUserRunData] = useState<any>(null);
 
   const navigate = useNavigate();
-
-  const { hash } = useLocation();
 
   // useEffect(() => {
   //   console.log(hash);
@@ -67,7 +66,7 @@ export default function UserPage() {
     )
       .then((response) => response.json())
       .then((result) => {
-        console.log(result.userData);
+        // console.log(result.userData);
         setUserData(result.userData);
       })
       .catch((error) => {
@@ -202,67 +201,6 @@ export default function UserPage() {
     calculateAveragePace(distanceKm, timeHours, Number(e.target.value));
   };
 
-  // return (
-  //   <div className={styles.container}>
-  //     {/* <Container
-  //       sx={{ width: "100wh", height: "100vh", backgroundColor: "red" }}
-  //     > */}
-  //     <Navbar></Navbar>
-  //     {/* </Container> */}
-  //     {userData ? (
-  //       <HeaderContext.Provider
-  //         value={{
-  //           displayName: userData.displayName,
-  //           photoURL: userData.photoURL,
-  //           isOwnProfile: isOwnProfile,
-  //         }}
-  //       >
-  //         <Header />
-  //       </HeaderContext.Provider>
-  //     ) : (
-  //       <h1>Loading...</h1>
-  //     )}
-
-  //     <Dashboard />
-
-  //     {/* {isOwnProfile && (
-  //       <div>
-  //         <form onSubmit={(e) => handleLogNewRun(e)}>
-  //           <input
-  //             onChange={(e) => updateDistnaceKmInput(e)}
-  //             type="text"
-  //             placeholder="Run distnace (in km)"
-  //           />
-  //           <input
-  //             onChange={(e) => updateTimeHoursInput(e)}
-  //             type="text"
-  //             placeholder="time hours"
-  //           />
-  //           <input
-  //             onChange={(e) => updateTimeMinutesInput(e)}
-  //             type="text"
-  //             placeholder="time minutes"
-  //           />
-  //           <button>submit</button>
-  //         </form>
-  //         <p>Average pace: {averagePace} min/km</p>
-  //       </div>
-  //     )} */}
-  //     {/* {userRunData && (
-  //       <div>
-  //         {userRunData.map((run: any, idx: number) => (
-  //           <div key={idx}>
-  //             <p>Run date: {run.runDate}</p>
-  //             <p>Run distance: {run.runDistanceKm} km</p>
-  //             <p>Run average pace: {run.runAveragePace} min/km</p>
-  //           </div>
-  //         ))}
-  //       </div>
-  //     )} */}
-  //     <button onClick={() => handleLogout()}>sign out</button>
-  //   </div>
-  // );
-
   const [open, setOpen] = useState(false);
   const drawerWidthOpen = "200px";
   const drawerWidthClosed = "50px";
@@ -354,7 +292,8 @@ export default function UserPage() {
                 borderRadius: "0.5rem",
               }}
             >
-              <RunList />
+              {/* <RunList /> */}
+              <Dashboard />
             </Box>
           </Box>
         </Box>

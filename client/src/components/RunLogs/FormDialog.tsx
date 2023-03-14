@@ -8,8 +8,13 @@ import {
   TextField,
 } from "@mui/material";
 import { httpsCallable } from "firebase/functions";
-import React, { useState } from "react";
-import { functions } from "../firebase/firebase";
+import { useContext, useState } from "react";
+import { functions } from "../../firebase/firebase";
+
+import RunListContext from "../../contexts/RunListContext";
+
+import { db } from "../../firebase/firebase";
+import { Timestamp } from "firebase/firestore";
 
 interface Props {
   uid: string;
@@ -19,6 +24,8 @@ interface Props {
 
 export default function FormDialog(props: Props) {
   const { uid, open, toggleDialog } = props;
+
+  const { addNewRun } = useContext(RunListContext);
 
   const handleSubmit = () => {
     if (!distanceKm) {
@@ -54,10 +61,16 @@ export default function FormDialog(props: Props) {
 
     console.log("totalTimeInMinutes: ", totalTimeInMinutes);
 
+    const timestamp = Timestamp.now();
+    console.log("timestamp: ", timestamp);
+
     const runData = {
+      runDate: timestamp,
       distanceKm: parseFloat(distanceKm),
       totalTimeMin: totalTimeInMinutes,
     };
+
+    addNewRun(runData);
 
     try {
       const response = await handleNewRun({

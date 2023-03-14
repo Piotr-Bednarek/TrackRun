@@ -9,9 +9,7 @@
         "firebase-debug.log",
         "firebase-debug.*.log"
       ],
-      "predeploy": [
-        "npm --prefix \"$RESOURCE_DIR\" run build"
-      ],
+      "predeploy": ["npm --prefix \"$RESOURCE_DIR\" run build"],
       "headers": [
         {
           "key": "Access-Control-Allow-Origin",
@@ -29,7 +27,7 @@
     },
     "singleProjectMode": true,
     "firestore": {
-      "port": 8080
+      "port": 4001
     }
   }
 }
