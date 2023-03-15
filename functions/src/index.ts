@@ -2,11 +2,12 @@ import * as functions from "firebase-functions";
 const cors = require("cors")({ origin: true });
 
 import admin from "firebase-admin";
-// import { getAuth } from "firebase-admin/auth";
 
 admin.initializeApp();
 
 const db = admin.firestore();
+
+import { FieldValue, Timestamp } from "firebase-admin/firestore";
 
 // const corsOptions = {
 //   origin: true,
@@ -95,27 +96,11 @@ export const getUserRunData = functions
     });
   });
 
-// export const handleUserLogin = functions
-//   .region("europe-west1")
-//   .https.onRequest((request, response) => {
-//     response.set("Access-Control-Allow-Origin", "*");
-//     response.set("Access-Control-Allow-Methods", "GET");
-//     response.set("Access-Control-Allow-Headers", "Content-Type");
-
-//     cors(request, response, async () => {
-//       try {
-//         const idToken: string = request.body.idToken;
-//         const decodedToken = await admin.auth().verifyIdToken(idToken);
-//         const uid = decodedToken.uid;
-//         await addUserToDatabase(uid);
-//         // response.status(200).send("User added to database successfully");
-//         response.send({ success: true, uid: uid });
-//       } catch (error) {
-//         console.error("Error adding user to database: ", error);
-//         response.status(500).send("Error adding user to database");
-//       }
-//     });
-//   });
+//TODO REFACOR ALL ABOVE
+//TODO REFACOR ALL ABOVE
+//TODO REFACOR ALL ABOVE
+//TODO REFACOR ALL ABOVE
+//TODO REFACOR ALL ABOVE
 
 const addUserToDatabaseIfNotExists = async (uid: string) => {
   const userRef = db.collection("users").doc(uid);
@@ -128,21 +113,26 @@ const addUserToDatabaseIfNotExists = async (uid: string) => {
   } else {
     const user = await admin.auth().getUser(uid);
 
+    //? create new user in database
     await userRef.create({
       displayName: user.displayName,
       photoURL: user.photoURL,
       createdAt: user.metadata.creationTime,
     });
+
+    // ? create statistics collection for user
+    const statisticsRef = userRef.collection("statistics");
+    await statisticsRef.doc("totalDistanceKm").create({ value: 0 });
+    await statisticsRef.doc("totalTimeMin").create({ value: 0 });
+
     console.log("Successfully added new user to database: ", uid);
   }
 };
 
-// TODO: consider using onCreate trigger instead of callable function
-
 export const handleUserLoginCallable = functions
   .region("europe-west1")
   .https.onCall(async (data, context) => {
-    const idToken = data.idToken;
+    const idToken: string = data.idToken;
 
     const decodedToken = await admin.auth().verifyIdToken(idToken);
     const uid = decodedToken.uid;
@@ -156,19 +146,12 @@ export const handleNewRunCallable = functions
   .https.onCall(async (data, context) => {
     try {
       const uid: string = data.uid;
-      // const timestamp = admin.firestore.Timestamp.now();
-
-      // const runData = { ...data.runData, runDate: timestamp };
       const runData = { ...data.runData };
 
-      // functions.logger.log("uid ", uid);
-
       const userRef = db.collection("users").doc(uid);
-
       const runsRef = userRef.collection("runs");
 
       const runRef = runsRef.doc();
-
       await runRef.set(runData);
 
       return { success: true, runId: runRef.id };
@@ -176,4 +159,32 @@ export const handleNewRunCallable = functions
       console.error("Error adding run to database: ", error);
       return { success: false, error: error };
     }
+  });
+
+//- UPDATE TOTAL STATISTICS ON NEW RUN
+
+type RunLog = {
+  distanceKm: number;
+  runDate: Timestamp;
+  totalTimeMin: number;
+};
+
+export const handleTotalStatisticsUpdate = functions
+  .region("europe-west1")
+  .firestore.document("users/{userId}/runs/{runId}")
+  .onCreate(async (snapshot, context) => {
+    const uid: string = context.params.userId;
+
+    const data = snapshot.data();
+
+    const newRunLog: RunLog = { ...data[0] };
+
+    // ? get total distance reference
+    const userRef = db.collection("users").doc(uid);
+    const statisticsRef = userRef.collection("statistics");
+    const totalDistanceRef = statisticsRef.doc("totalDistanceKm");
+
+    await totalDistanceRef.update({
+      value: FieldValue.increment(newRunLog.distanceKm),
+    });
   });
