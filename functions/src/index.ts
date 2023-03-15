@@ -122,8 +122,7 @@ const addUserToDatabaseIfNotExists = async (uid: string) => {
 
     // ? create statistics collection for user
     const statisticsRef = userRef.collection("statistics");
-    await statisticsRef.doc("totalDistanceKm").create({ value: 0 });
-    await statisticsRef.doc("totalTimeMin").create({ value: 0 });
+    await statisticsRef.doc("totalStatistics").create({});
 
     console.log("Successfully added new user to database: ", uid);
   }
@@ -177,14 +176,48 @@ export const handleTotalStatisticsUpdate = functions
 
     const data = snapshot.data();
 
-    const newRunLog: RunLog = { ...data[0] };
+    const newRunLog: RunLog = {
+      distanceKm: data.distanceKm,
+      runDate: data.runDate,
+      totalTimeMin: data.totalTimeMin,
+    };
 
-    // ? get total distance reference
+    // ? get total statistics reference
     const userRef = db.collection("users").doc(uid);
-    const statisticsRef = userRef.collection("statistics");
-    const totalDistanceRef = statisticsRef.doc("totalDistanceKm");
+    const totalStatisticsRef = userRef
+      .collection("statistics")
+      .doc("totalStatistics");
 
-    await totalDistanceRef.update({
-      value: FieldValue.increment(newRunLog.distanceKm),
+    //? updating values in statistics docs
+    await totalStatisticsRef.update({
+      totalDistanceKm: FieldValue.increment(newRunLog.distanceKm),
+      totalTimeMin: FieldValue.increment(newRunLog.totalTimeMin),
+      totalRunCount: FieldValue.increment(1),
     });
+  });
+
+//- GET USER'S STATISTICS
+
+export const handleGetUserTotalStatistics = functions
+  .region("europe-west1")
+  .https.onCall(async (data, context) => {
+    const uid: string = data.uid;
+
+    //? get statistics references
+    const userRef = db.collection("users").doc(uid);
+    const totalStatisticsRef = userRef
+      .collection("statistics")
+      .doc("totalStatistics");
+
+    try {
+      //? get user statistics
+      const totalStatisticsSnapshot = await totalStatisticsRef.get();
+
+      const totalStatistics = totalStatisticsSnapshot.data();
+
+      return { success: true, ...totalStatistics };
+    } catch (error) {
+      console.error("Error getting user statistics: ", error);
+      return { success: false, error: error };
+    }
   });
