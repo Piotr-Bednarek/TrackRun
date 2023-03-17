@@ -7,7 +7,7 @@ import FormDialog from "./FormDialog";
 import RunListContext from "../../contexts/RunListContext";
 
 function RunList() {
-  const { userUid: uid } = useParams();
+  const { userId: uid } = useParams();
 
   const [userRunData, setUserRunData] = useState<any>(null);
 

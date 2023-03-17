@@ -17,7 +17,7 @@ import { httpsCallable } from "firebase/functions";
 import Dashboard from "../components/Dashboard";
 
 export default function UserPage() {
-  const { userUid: uid } = useParams();
+  const { userId: uid } = useParams();
   const [userData, setUserData] = useState<any>(null);
   const [isOwnProfile, setIsOwnProfile] = useState(false);
 
