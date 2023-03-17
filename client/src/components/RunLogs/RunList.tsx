@@ -46,6 +46,8 @@ function RunList() {
 
       const response = await fetch(url, options);
 
+      console.log(response);
+
       const result = await response.json();
 
       console.log(result.runData);
