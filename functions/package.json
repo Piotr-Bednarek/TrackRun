@@ -4,7 +4,7 @@
     "build": "tsc",
     "serve": "npm-run-all --parallel watch emulators",
     "watch": "tsc --watch",
-    "emulators": "firebase emulators:start",
+    "emulators": "firebase emulators:start --import=./emulator-data --export-on-exit",
     "shell": "npm run build && firebase functions:shell",
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",

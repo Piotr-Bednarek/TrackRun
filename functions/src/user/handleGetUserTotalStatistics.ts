@@ -1,5 +1,7 @@
 import * as functions from "firebase-functions";
-import { db } from "../utils/firebase";
+import { firebaseApp } from "../firebase";
+
+const db = firebaseApp.firestore();
 
 export const handleGetUserTotalStatistics = functions
   .region("europe-west1")

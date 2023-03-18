@@ -1,7 +1,9 @@
 import { Timestamp } from "firebase-admin/firestore";
 import * as functions from "firebase-functions";
 
-import { db } from "../utils/firebase";
+import { firebaseApp } from "../firebase";
+
+const db = firebaseApp.firestore();
 
 export const handleNewRunCallable = functions
   .region("europe-west1")

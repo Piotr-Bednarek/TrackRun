@@ -1,13 +1,15 @@
 import * as functions from "firebase-functions";
 
-import { firebase, db } from "../utils/firebase";
+import { firebaseApp } from "../firebase";
+
+const db = firebaseApp.firestore();
 
 export const handleUserLoginCallable = functions
   .region("europe-west1")
   .https.onCall(async (data, context) => {
     const idToken: string = data.idToken;
 
-    const decodedToken = await firebase.auth().verifyIdToken(idToken);
+    const decodedToken = await firebaseApp.auth().verifyIdToken(idToken);
     const uid = decodedToken.uid;
     await addUserToDatabaseIfNotExists(uid);
 
@@ -23,7 +25,7 @@ const addUserToDatabaseIfNotExists = async (uid: string) => {
     console.log("User already exists", uid);
     return;
   } else {
-    const user = await firebase.auth().getUser(uid);
+    const user = await firebaseApp.auth().getUser(uid);
 
     //? create new user in database
     await userRef.create({
