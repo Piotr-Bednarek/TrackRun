@@ -1,17 +1,20 @@
 import * as functions from "firebase-functions";
 const cors = require("cors")({ origin: true });
 
-import { FieldValue, Timestamp } from "firebase-admin/firestore";
+import { FieldValue } from "firebase-admin/firestore";
 import { RunLog } from "./types";
 
 import { handleUserLoginCallable } from "./user/handleUserLoginCallable";
 import { handleGetUserTotalStatistics } from "./user/handleGetUserTotalStatistics";
 import { handleNewRunCallable } from "./firestore/handleNewRunCallable";
 
+import { handleNumberOfPagesCallable } from "./firestore/handleNumberOfPagesCallable";
+
 export {
   handleUserLoginCallable,
   handleGetUserTotalStatistics,
   handleNewRunCallable,
+  handleNumberOfPagesCallable,
 };
 
 import { firebaseApp } from "./firebase";

@@ -19,5 +19,7 @@ export const handleNumberOfPagesCallable = functions
 
     const numberOfPages = Math.ceil(numberOfRuns / 10);
 
+    console.log("numberOfRuns: ", numberOfRuns);
+
     return { success: true, numberOfPages: numberOfPages };
   });
