@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 
-import { Button, Paper, Stack, Typography } from "@mui/material";
+import { Box, Button, Paper, Stack, Typography } from "@mui/material";
 
 import RunListItem from "./RunListItem";
 import FormDialog from "./FormDialog";
@@ -9,14 +9,19 @@ import FormDialog from "./FormDialog";
 import RunListContext from "../../contexts/RunListContext";
 import PaginationContext from "../../contexts/PaginationContext";
 
-import PagesComponent from "./PaginationComponent";
+import PaginationComponent from "./PaginationComponent";
 
 import { functions } from "../../firebase/firebase";
 import { httpsCallable } from "firebase/functions";
 
-type Result = {
+type FetchNumberOfPagesResult = {
   success: boolean;
   numberOfPages?: number;
+};
+
+type FetchUserRunDataResult = {
+  success: boolean;
+  runData?: [];
 };
 
 function RunList() {
@@ -26,18 +31,24 @@ function RunList() {
 
   const [formDialogOpen, setFormDialogOpen] = useState(false);
 
-  const [numberOfPages, setNumberOfPages] = useState(0);
-  const [selectedPage, setSelectedPage] = useState(0);
+  const [numberOfPages, setNumberOfPages] = useState(1);
+  const [selectedPage, setSelectedPage] = useState(1);
+  const [lastRun, setLastRun] = useState<any>(null);
 
   const handleNumberOfPagesCallable = httpsCallable(
     functions,
     "handleNumberOfPagesCallable"
   );
 
+  const handleFetchUserRunDataCallable = httpsCallable(
+    functions,
+    "handleFetchUserRunDataCallable"
+  );
+
   const getNumberOfPages = async () => {
     const result = await handleNumberOfPagesCallable({ uid });
 
-    const data = result.data as Result;
+    const data = result.data as FetchNumberOfPagesResult;
 
     setNumberOfPages(data.numberOfPages || 0);
   };
@@ -54,12 +65,15 @@ function RunList() {
 
     fetchUserRunData();
     getNumberOfPages();
-  }, []);
+  }, [selectedPage]);
 
   const addNewRun = (runData: any) => {
     console.log(runData);
 
     setUserRunData((prevRunData: any) => {
+      if (!Array.isArray(prevRunData)) {
+        return [runData];
+      }
       return [runData, ...prevRunData];
     });
   };
@@ -69,68 +83,84 @@ function RunList() {
   };
 
   const fetchUserRunData = async () => {
-    try {
-      const url = `http://127.0.0.1:5001/track-run-b9950/europe-west1/getUserRunData?uid=${uid}`;
-      const options = {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      };
+    const result = await handleFetchUserRunDataCallable({
+      uid,
+      selectedPage,
+      lastRun,
+    });
 
-      const response = await fetch(url, options);
+    const data = result.data as FetchUserRunDataResult;
+    const runData = data.runData || [];
 
-      console.log(response);
+    setUserRunData(runData);
 
-      const result = await response.json();
+    console.log(runData);
+    console.log(runData[runData.length - 1]);
+    console.log(selectedPage);
 
-      console.log(result.runData);
-
-      setUserRunData(result.runData);
-    } catch (error) {
-      console.log(error);
-    }
+    setLastRun(runData[runData.length - 1]);
   };
 
   return (
-    <Stack
-      direction="column"
-      justifyContent="flex-start"
-      alignItems="stretch"
-      spacing={2}
-      sx={{ height: "100%", width: "100%" }}
+    <Box
+      sx={{
+        width: "100%",
+        height: "100%",
+        position: "relative",
+        display: "flex",
+        flexDirection: "column",
+      }}
     >
-      <Paper>
-        <Typography variant="h5" component="h2">
-          Run List
-        </Typography>
-        <Button onClick={toggleDialog}>ADD</Button>
-        <RunListContext.Provider value={{ addNewRun }}>
-          <FormDialog
-            uid={uid || ""}
-            open={formDialogOpen}
-            toggleDialog={toggleDialog}
-          />
-        </RunListContext.Provider>
-      </Paper>
-      {userRunData && userRunData.length > 0 ? (
-        userRunData.map((run: any, idx: number) => (
-          <RunListItem
-            key={idx}
-            runDate={run.runDate}
-            distanceKm={run.distanceKm}
-            totalTimeMin={run.totalTimeMin}
-          />
-        ))
-      ) : (
-        <div>No runs</div>
-      )}
-      <PaginationContext.Provider
-        value={{ numberOfPages, selectedPage, handlePageChange }}
+      <Box
+        sx={{
+          background: "green",
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+        }}
       >
-        <PagesComponent />
-      </PaginationContext.Provider>
-    </Stack>
+        <Paper>
+          <Typography variant="h5" component="h2">
+            Run List
+          </Typography>
+          <Button onClick={toggleDialog}>ADD</Button>
+          <RunListContext.Provider value={{ addNewRun }}>
+            <FormDialog
+              uid={uid || ""}
+              open={formDialogOpen}
+              toggleDialog={toggleDialog}
+            />
+          </RunListContext.Provider>
+        </Paper>
+        <Box sx={{ backgroundColor: "red", flex: 1, paddingTop: "0.5rem" }}>
+          <Stack
+            direction="column"
+            justifyContent="flex-start"
+            alignItems="stretch"
+            spacing={1}
+            sx={{ width: "100%", height: "100%" }}
+          >
+            {userRunData && userRunData.length > 0 ? (
+              userRunData.map((run: any, idx: number) => (
+                <RunListItem
+                  key={idx}
+                  runDate={run.runDate}
+                  distanceKm={run.distanceKm}
+                  totalTimeMin={run.totalTimeMin}
+                />
+              ))
+            ) : (
+              <div>No runs</div>
+            )}
+          </Stack>
+        </Box>
+        <PaginationContext.Provider
+          value={{ numberOfPages, selectedPage, handlePageChange }}
+        >
+          <PaginationComponent />
+        </PaginationContext.Provider>
+      </Box>
+    </Box>
   );
 }
 

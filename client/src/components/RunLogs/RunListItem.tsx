@@ -1,4 +1,4 @@
-import { Paper, Grid, Typography } from "@mui/material";
+import { Paper, Grid, Typography, Box } from "@mui/material";
 import { Timestamp } from "firebase/firestore";
 
 interface RunListItemProps {
@@ -20,7 +20,7 @@ function RunListItem(props: RunListItemProps) {
   const year = date.getFullYear();
 
   return (
-    <Paper
+    <Box
       sx={{
         height: "4rem",
         backgroundColor: "rgb(77, 77, 77)",
@@ -56,7 +56,7 @@ function RunListItem(props: RunListItemProps) {
           </Paper>
         </Grid>
       </Grid>
-    </Paper>
+    </Box>
   );
 }
 

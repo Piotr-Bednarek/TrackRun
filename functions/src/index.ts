@@ -102,6 +102,55 @@ export const getUserRunData = functions
     });
   });
 
+export const handleFetchUserRunDataCallable = functions
+  .region("europe-west1")
+  .https.onCall(async (data, context) => {
+    const uid = data.uid;
+    const selectedPage = data.selectedPage;
+    // const lastRun = data.lastRun;
+
+    if (!uid) {
+      return { success: false, error: "Missing uid" };
+    }
+    functions.logger.info("Requested user run data: " + uid, {
+      structuredData: true,
+    });
+
+    const userRef = db.collection("users").doc(uid);
+
+    const runsRef = userRef.collection("runs");
+
+    try {
+      let snapshot: any;
+
+      if (selectedPage === 1) {
+        snapshot = await runsRef.orderBy("runDate", "desc").limit(10).get();
+      } else {
+        const lastRun = await runsRef
+          .orderBy("runDate", "desc")
+          .limit((selectedPage - 1) * 10)
+          .offset((selectedPage - 1) * 10 - 1)
+          .get();
+        snapshot = await runsRef
+          .orderBy("runDate", "desc")
+          .startAfter(lastRun.docs[0].data().runDate)
+          .limit(10)
+          .get();
+      }
+
+      const runData: any = [];
+
+      snapshot.forEach((doc: any) => {
+        runData.push(doc.data());
+      });
+
+      return { success: true, runData: runData };
+    } catch (error) {
+      functions.logger.error(error, { structuredData: true });
+      return { success: false, error: error };
+    }
+  });
+
 //TODO REFACOR ALL ABOVE
 //TODO REFACOR ALL ABOVE
 //TODO REFACOR ALL ABOVE

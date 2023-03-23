@@ -1,4 +1,4 @@
-import { Pagination, Typography } from "@mui/material";
+import { Box, Pagination, Typography } from "@mui/material";
 import { useContext } from "react";
 import PaginationContext from "../../contexts/PaginationContext";
 
@@ -12,8 +12,17 @@ export default function PaginationComponent() {
   };
 
   return (
-    <div>
-      <p>pages {numberOfPages}</p>
+    <Box
+      sx={{
+        background: "dodgerblue",
+        display: "flex",
+        justifyContent: "center",
+        position: "absolute",
+        bottom: 0,
+        width: "100%",
+        left: 0,
+      }}
+    >
       <Pagination
         sx={{
           "& .MuiPaginationItem-root": {
@@ -24,6 +33,6 @@ export default function PaginationComponent() {
         count={numberOfPages}
         onChange={handleChange}
       />
-    </div>
+    </Box>
   );
 }
