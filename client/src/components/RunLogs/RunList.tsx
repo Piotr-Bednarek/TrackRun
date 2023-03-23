@@ -1,57 +1,77 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
 import { Box, Button, Paper, Stack, Typography } from "@mui/material";
 
-import RunListItem from "./RunListItem";
 import FormDialog from "./FormDialog";
+import RunListItem from "./RunListItem";
 
-import RunListContext from "../../contexts/RunListContext";
 import PaginationContext from "../../contexts/PaginationContext";
+import RunListContext from "../../contexts/RunListContext";
 
 import PaginationComponent from "./PaginationComponent";
 
-import { functions } from "../../firebase/firebase";
-import { httpsCallable } from "firebase/functions";
+// import { httpsCallable } from "firebase/functions";
+// import { functions } from "../../firebase/firebase";
 
-type FetchNumberOfPagesResult = {
-  success: boolean;
-  numberOfPages?: number;
-};
+import { useNumberOfPages } from "../../hooks/useNumberOfPages";
+import { useUserRunData } from "../../hooks/useUserRunData";
 
-type FetchUserRunDataResult = {
-  success: boolean;
-  runData?: [];
-};
+// type FetchNumberOfPagesResult = {
+//   success: boolean;
+//   numberOfPages?: number;
+// };
+
+// type FetchUserRunDataResult = {
+//   success: boolean;
+//   runData?: [];
+// };
 
 function RunList() {
   const { userId: uid } = useParams();
 
-  const [userRunData, setUserRunData] = useState<any>(null);
+  // const [userRunData, setUserRunData] = useState<any>(null);
 
   const [formDialogOpen, setFormDialogOpen] = useState(false);
 
-  const [numberOfPages, setNumberOfPages] = useState(1);
+  // const [numberOfPages, setNumberOfPages] = useState(1);
   const [selectedPage, setSelectedPage] = useState(1);
-  const [lastRun, setLastRun] = useState<any>(null);
+  // const [lastRun, setLastRun] = useState<any>(null);
 
-  const handleNumberOfPagesCallable = httpsCallable(
-    functions,
-    "handleNumberOfPagesCallable"
-  );
+  if (!uid) return <p>No user id</p>;
+  const {
+    paginatedRunData,
+    userRunData,
+    isLoading: userRunDataIsLoading,
+    error: userRunDataError,
+    lastRun,
+    updateUserRunData,
+  } = useUserRunData(uid, selectedPage);
 
-  const handleFetchUserRunDataCallable = httpsCallable(
-    functions,
-    "handleFetchUserRunDataCallable"
-  );
+  const {
+    numberOfPages,
+    isLoading: numberOfPagesIsLoading,
+    error: numberOfPagesError,
+    updateNumberOfPages,
+  } = useNumberOfPages(uid);
 
-  const getNumberOfPages = async () => {
-    const result = await handleNumberOfPagesCallable({ uid });
+  // const handleNumberOfPagesCallable = httpsCallable(
+  //   functions,
+  //   "handleNumberOfPagesCallable"
+  // );
 
-    const data = result.data as FetchNumberOfPagesResult;
+  // const handleFetchUserRunData = httpsCallable(
+  //   functions,
+  //   "handleFetchUserRunData"
+  // );
 
-    setNumberOfPages(data.numberOfPages || 0);
-  };
+  // const getNumberOfPages = async () => {
+  //   const result = await handleNumberOfPagesCallable({ uid });
+
+  //   const data = result.data as FetchNumberOfPagesResult;
+
+  //   setNumberOfPages(data.numberOfPages || 0);
+  // };
 
   const toggleDialog = () => {
     setFormDialogOpen(!formDialogOpen);
@@ -63,43 +83,45 @@ function RunList() {
       return;
     }
 
-    fetchUserRunData();
-    getNumberOfPages();
+    // fetchUserRunData();
+    // getNumberOfPages();
   }, [selectedPage]);
 
   const addNewRun = (runData: any) => {
     console.log(runData);
+    updateUserRunData(runData);
+    updateNumberOfPages(userRunData?.length || 0);
 
-    setUserRunData((prevRunData: any) => {
-      if (!Array.isArray(prevRunData)) {
-        return [runData];
-      }
-      return [runData, ...prevRunData];
-    });
+    // userRunData((prevRunData: any) => {
+    //   if (!Array.isArray(prevRunData)) {
+    //     return [runData];
+    //   }
+    //   return [runData, ...prevRunData];
+    // });
   };
 
   const handlePageChange = (page: number) => {
     setSelectedPage(page);
   };
 
-  const fetchUserRunData = async () => {
-    const result = await handleFetchUserRunDataCallable({
-      uid,
-      selectedPage,
-      lastRun,
-    });
+  // const fetchUserRunData = async () => {
+  //   const result = await handleFetchUserRunData({
+  //     uid,
+  //     selectedPage,
+  //     lastRun,
+  //   });
 
-    const data = result.data as FetchUserRunDataResult;
-    const runData = data.runData || [];
+  //   const data = result.data as FetchUserRunDataResult;
+  //   const runData = data.runData || [];
 
-    setUserRunData(runData);
+  //   setUserRunData(runData);
 
-    console.log(runData);
-    console.log(runData[runData.length - 1]);
-    console.log(selectedPage);
+  //   console.log(runData);
+  //   console.log(runData[runData.length - 1]);
+  //   console.log(selectedPage);
 
-    setLastRun(runData[runData.length - 1]);
-  };
+  //   setLastRun(runData[runData.length - 1]);
+  // };
 
   return (
     <Box
@@ -140,25 +162,27 @@ function RunList() {
             spacing={1}
             sx={{ width: "100%", height: "100%" }}
           >
-            {userRunData && userRunData.length > 0 ? (
-              userRunData.map((run: any, idx: number) => (
+            {userRunDataIsLoading && <div>Loading...</div>}
+            {userRunData?.length === 0 && <div>No data</div>}
+            {paginatedRunData &&
+              paginatedRunData.map((run: any, idx: number) => (
                 <RunListItem
                   key={idx}
                   runDate={run.runDate}
                   distanceKm={run.distanceKm}
                   totalTimeMin={run.totalTimeMin}
                 />
-              ))
-            ) : (
-              <div>No runs</div>
-            )}
+              ))}
           </Stack>
         </Box>
-        <PaginationContext.Provider
-          value={{ numberOfPages, selectedPage, handlePageChange }}
-        >
-          <PaginationComponent />
-        </PaginationContext.Provider>
+        {numberOfPagesIsLoading && <div>Loading...</div>}
+        {numberOfPages && (
+          <PaginationContext.Provider
+            value={{ numberOfPages, selectedPage, handlePageChange }}
+          >
+            <PaginationComponent />
+          </PaginationContext.Provider>
+        )}
       </Box>
     </Box>
   );

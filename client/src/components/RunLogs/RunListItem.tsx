@@ -1,4 +1,4 @@
-import { Paper, Grid, Typography, Box } from "@mui/material";
+import { Box, Grid, Paper, Typography } from "@mui/material";
 import { Timestamp } from "firebase/firestore";
 
 interface RunListItemProps {
@@ -7,7 +7,7 @@ interface RunListItemProps {
   totalTimeMin: number;
 }
 
-function RunListItem(props: RunListItemProps) {
+export default function RunListItem(props: RunListItemProps) {
   const { runDate, distanceKm, totalTimeMin } = props;
 
   const date = new Timestamp(
@@ -38,7 +38,6 @@ function RunListItem(props: RunListItemProps) {
             {day}/{month}/{year}
           </Typography>
         </Grid>
-
         <Grid item xs={9} sx={{ padding: "0.25rem" }} container>
           <Paper
             sx={{
@@ -59,5 +58,3 @@ function RunListItem(props: RunListItemProps) {
     </Box>
   );
 }
-
-export default RunListItem;
