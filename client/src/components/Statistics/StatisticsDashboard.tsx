@@ -6,6 +6,7 @@ import { useParams } from "react-router-dom";
 import { functions } from "../../firebase/firebase";
 import { useUserTotalStatistics } from "../../hooks/useUserStatistics";
 import { StatisticsItem } from "./StatisticsItem";
+import WeeklyStatisticsDashboard from "./WeeklyStatisticsDashboard";
 
 export default function StatisticsDashboard() {
   const { userId: uid } = useParams();
@@ -81,6 +82,8 @@ export default function StatisticsDashboard() {
         unit=""
         value={userTotalStatistics?.totalRunCount}
       />
+
+      <WeeklyStatisticsDashboard />
     </Stack>
   );
 }

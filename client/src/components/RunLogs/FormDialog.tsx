@@ -65,12 +65,12 @@ export default function FormDialog(props: Props) {
     console.log("timestamp: ", timestamp);
 
     const runData = {
-      runDate: timestamp,
+      // runDate: timestamp,
       distanceKm: parseFloat(distanceKm),
       totalTimeMin: totalTimeInMinutes,
     };
 
-    addNewRun(runData);
+    addNewRun({ runDate: timestamp, ...runData });
 
     try {
       const response = await handleNewRun({

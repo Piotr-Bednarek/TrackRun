@@ -1,19 +1,25 @@
 import * as functions from "firebase-functions";
 const cors = require("cors")({ origin: true });
 
-import admin from "firebase-admin";
+import { FieldValue } from "firebase-admin/firestore";
+import { RunLog } from "./types";
 
-admin.initializeApp();
+import { handleUserLoginCallable } from "./user/handleUserLoginCallable";
+import { handleGetUserTotalStatistics } from "./user/handleGetUserTotalStatistics";
+import { handleNewRunCallable } from "./firestore/handleNewRunCallable";
 
-const db = admin.firestore();
+import { handleNumberOfPagesCallable } from "./firestore/handleNumberOfPagesCallable";
 
-import { FieldValue, Timestamp } from "firebase-admin/firestore";
+export {
+  handleUserLoginCallable,
+  handleGetUserTotalStatistics,
+  handleNewRunCallable,
+  handleNumberOfPagesCallable,
+};
 
-// const corsOptions = {
-//   origin: true,
-//   methods: ["GET"],
-//   allowedHeaders: ["Content-Type"],
-// };
+import { firebaseApp } from "./firebase";
+
+const db = firebaseApp.firestore();
 
 export const getUserData = functions
   .region("europe-west1")
@@ -81,7 +87,7 @@ export const getUserRunData = functions
 
         await userRef
           .collection("runs")
-          .orderBy("runDate.seconds", "desc")
+          .orderBy("runDate", "desc")
           .get()
           .then((snapshot) => {
             const runData: any = [];
@@ -96,76 +102,126 @@ export const getUserRunData = functions
     });
   });
 
-//TODO REFACOR ALL ABOVE
-//TODO REFACOR ALL ABOVE
-//TODO REFACOR ALL ABOVE
-//TODO REFACOR ALL ABOVE
-//TODO REFACOR ALL ABOVE
+export const handleFetchUserRunDataCallable = functions
+  .region("europe-west1")
+  .https.onCall(async (data, context) => {
+    const uid = data.uid;
+    const selectedPage = data.selectedPage;
+    // const lastRun = data.lastRun;
 
-const addUserToDatabaseIfNotExists = async (uid: string) => {
-  const userRef = db.collection("users").doc(uid);
-
-  const snapshot = await userRef.get();
-
-  if (snapshot.exists) {
-    console.log("User already exists", uid);
-    return;
-  } else {
-    const user = await admin.auth().getUser(uid);
-
-    //? create new user in database
-    await userRef.create({
-      displayName: user.displayName,
-      photoURL: user.photoURL,
-      createdAt: user.metadata.creationTime,
+    if (!uid) {
+      return { success: false, error: "Missing uid" };
+    }
+    functions.logger.info("Requested user run data: " + uid, {
+      structuredData: true,
     });
 
-    // ? create statistics collection for user
-    const statisticsRef = userRef.collection("statistics");
-    await statisticsRef.doc("totalStatistics").create({});
+    const userRef = db.collection("users").doc(uid);
 
-    console.log("Successfully added new user to database: ", uid);
-  }
-};
+    const runsRef = userRef.collection("runs");
 
-export const handleUserLoginCallable = functions
-  .region("europe-west1")
-  .https.onCall(async (data, context) => {
-    const idToken: string = data.idToken;
-
-    const decodedToken = await admin.auth().verifyIdToken(idToken);
-    const uid = decodedToken.uid;
-    await addUserToDatabaseIfNotExists(uid);
-
-    return { success: true, uid: uid };
-  });
-
-export const handleNewRunCallable = functions
-  .region("europe-west1")
-  .https.onCall(async (data, context) => {
     try {
-      const uid: string = data.uid;
-      const runData = { ...data.runData };
+      let snapshot: any;
 
-      const userRef = db.collection("users").doc(uid);
-      const runsRef = userRef.collection("runs");
+      if (selectedPage === 1) {
+        snapshot = await runsRef.orderBy("runDate", "desc").limit(10).get();
+      } else {
+        const lastRun = await runsRef
+          .orderBy("runDate", "desc")
+          .limit((selectedPage - 1) * 10)
+          .offset((selectedPage - 1) * 10 - 1)
+          .get();
+        snapshot = await runsRef
+          .orderBy("runDate", "desc")
+          .startAfter(lastRun.docs[0].data().runDate)
+          .limit(10)
+          .get();
+      }
 
-      const runRef = runsRef.doc();
-      await runRef.set(runData);
+      const runData: any = [];
 
-      return { success: true, runId: runRef.id };
+      snapshot.forEach((doc: any) => {
+        runData.push(doc.data());
+      });
+
+      return { success: true, runData: runData };
     } catch (error) {
-      console.error("Error adding run to database: ", error);
+      functions.logger.error(error, { structuredData: true });
       return { success: false, error: error };
     }
   });
 
-//- UPDATE TOTAL STATISTICS ON NEW RUN
+//TODO REFACOR ALL ABOVE
+//TODO REFACOR ALL ABOVE
+//TODO REFACOR ALL ABOVE
+//TODO REFACOR ALL ABOVE
+//TODO REFACOR ALL ABOVE
 
-type RunLog = {
-  distanceKm: number;
-  runDate: Timestamp;
-  totalTimeMin: number;
+export const handleWeeklyStatisticsUpdate = functions
+  .region("europe-west1")
+  .firestore.document("users/{userId}/runs/{runId}")
+  .onCreate(async (snapshot, context) => {
+    const uid: string = context.params.userId;
+
+    const data = snapshot.data();
+
+    const newRunLog: RunLog = {
+      runDate: data.runDate,
+      distanceKm: data.distanceKm,
+      totalTimeMin: data.totalTimeMin,
+    };
+
+    //? get year and week number
+    const runDate = newRunLog.runDate.toDate();
+    const year = runDate.getFullYear();
+
+    const weekNumber = getWeekNumber(runDate);
+
+    // console.log("year: ", year);
+    // console.log("weekNumber: ", weekNumber);
+
+    //? get weekly statistics reference
+    const userRef = db.collection("users").doc(uid);
+    const weeklyStatisticsRef = userRef
+      .collection("statistics")
+      .doc("weeklyStatistics");
+
+    const yearCollectionRef = weeklyStatisticsRef.collection(year.toString());
+
+    const weekDocRef = yearCollectionRef.doc(weekNumber.toString());
+
+    //? check if week doc exists
+    const weekDocSnapshot = await weekDocRef.get();
+
+    if (weekDocSnapshot.exists) {
+      //? update week doc
+      await weekDocRef.update({
+        totalDistanceKm: FieldValue.increment(newRunLog.distanceKm),
+        totalTimeMin: FieldValue.increment(newRunLog.totalTimeMin),
+        totalRunCount: FieldValue.increment(1),
+      });
+    } else {
+      //? create new week doc
+      await weekDocRef.set({
+        totalDistanceKm: newRunLog.distanceKm,
+        totalTimeMin: newRunLog.totalTimeMin,
+        totalRunCount: 1,
+      });
+    }
+  });
+
+const getWeekNumber = (d: Date) => {
+  const date: any = new Date(
+    Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())
+  );
+
+  date.setUTCDate(date.getUTCDate() + 4 - (date.getUTCDay() || 7));
+
+  const yearStart: any = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+
+  const weekNumber = Math.ceil(((date - yearStart) / 86400000 + 1) / 7);
+
+  return weekNumber;
 };
 
 export const handleTotalStatisticsUpdate = functions
@@ -194,30 +250,4 @@ export const handleTotalStatisticsUpdate = functions
       totalTimeMin: FieldValue.increment(newRunLog.totalTimeMin),
       totalRunCount: FieldValue.increment(1),
     });
-  });
-
-//- GET USER'S STATISTICS
-
-export const handleGetUserTotalStatistics = functions
-  .region("europe-west1")
-  .https.onCall(async (data, context) => {
-    const uid: string = data.uid;
-
-    //? get statistics references
-    const userRef = db.collection("users").doc(uid);
-    const totalStatisticsRef = userRef
-      .collection("statistics")
-      .doc("totalStatistics");
-
-    try {
-      //? get user statistics
-      const totalStatisticsSnapshot = await totalStatisticsRef.get();
-
-      const totalStatistics = totalStatisticsSnapshot.data();
-
-      return { success: true, ...totalStatistics };
-    } catch (error) {
-      console.error("Error getting user statistics: ", error);
-      return { success: false, error: error };
-    }
   });
