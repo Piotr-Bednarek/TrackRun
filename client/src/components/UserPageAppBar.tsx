@@ -1,4 +1,4 @@
-import { AppBar, Box, SvgIcon, Typography, Avatar } from "@mui/material";
+import { AppBar, Avatar, Box, SvgIcon, Typography } from "@mui/material";
 import { useContext } from "react";
 import { Link } from "react-router-dom";
 

@@ -1,20 +1,20 @@
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
-import { logOut, auth, functions } from "../firebase/firebase";
+import { auth, functions, logOut } from "../firebase/firebase";
 
-import { useState, useEffect } from "react";
 import { browserLocalPersistence } from "firebase/auth";
+import { useEffect, useState } from "react";
 
 import "./index.css";
 
-import HeaderContext from "../contexts/HeaderContext";
 import { Box, Grid, Paper, Stack } from "@mui/material";
+import HeaderContext from "../contexts/HeaderContext";
 
-import NavigationDrawer from "../components/Drawer/NavigationDrawer";
-import UserPageAppBar from "../components/UserPageAppBar";
-import RunList from "../components/RunLogs/RunList";
 import { httpsCallable } from "firebase/functions";
 import Dashboard from "../components/Dashboard";
+import NavigationDrawer from "../components/Drawer/NavigationDrawer";
+import RunList from "../components/RunLogs/RunList";
+import UserPageAppBar from "../components/UserPageAppBar";
 
 export default function UserPage() {
   const { userId: uid } = useParams();
@@ -279,7 +279,7 @@ export default function UserPage() {
           >
             <Box
               sx={{
-                background: "rgb(21, 21, 21)",
+                background: "black",
                 boxSizing: "border-box",
                 flexGrow: 1,
                 height: "calc(100% - 2rem)",

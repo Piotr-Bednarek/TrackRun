@@ -1,4 +1,4 @@
-import { Paper, Box, Typography } from "@mui/material";
+import { Box, Paper, Typography } from "@mui/material";
 
 type StatisticsItemProps = {
   title: string;

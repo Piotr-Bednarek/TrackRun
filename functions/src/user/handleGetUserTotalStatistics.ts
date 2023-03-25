@@ -22,7 +22,7 @@ export const handleGetUserTotalStatistics = functions
 
       return { success: true, ...totalStatistics };
     } catch (error) {
-      console.error("Error getting user statistics: ", error);
+      // console.error("Error getting user statistics: ", error);
       return { success: false, error: error };
     }
   });
