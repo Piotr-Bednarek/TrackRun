@@ -4,7 +4,7 @@ import { firebaseApp } from "../firebase";
 
 const db = firebaseApp.firestore();
 
-export const handleGetNumberOfPages = functions
+export const handleGetRunsCollectionSize = functions
   .region("europe-west1")
   .https.onCall(async (data, context) => {
     const uid: string = data.uid;
@@ -17,7 +17,5 @@ export const handleGetNumberOfPages = functions
 
     const numberOfRuns = snapshot.size;
 
-    const numberOfPages = Math.ceil(numberOfRuns / 10);
-
-    return { success: true, numberOfPages: numberOfPages };
+    return { success: true, numberOfRuns: numberOfRuns };
   });

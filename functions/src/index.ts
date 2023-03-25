@@ -4,17 +4,17 @@ const cors = require("cors")({ origin: true });
 import { FieldValue } from "firebase-admin/firestore";
 import { RunLog } from "./types";
 
-import { handleNewRunCallable } from "./firestore/handleNewRunCallable";
+import { handleCreateNewRun } from "./firestore/handleCreateNewRun";
 import { handleGetUserTotalStatistics } from "./user/handleGetUserTotalStatistics";
 import { handleUserLoginCallable } from "./user/handleUserLoginCallable";
 
-import { handleGetNumberOfPages } from "./firestore/handleGetNumberOfPages";
+import { handleGetRunsCollectionSize } from "./firestore/handleGetRunsCollectionSize";
 
 export {
   handleUserLoginCallable,
   handleGetUserTotalStatistics,
-  handleNewRunCallable,
-  handleGetNumberOfPages,
+  handleCreateNewRun,
+  handleGetRunsCollectionSize,
 };
 
 import { firebaseApp } from "./firebase";

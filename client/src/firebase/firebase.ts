@@ -1,12 +1,12 @@
 import { initializeApp } from "firebase/app";
 
 import {
-  GoogleAuthProvider,
+  browserLocalPersistence,
   getAuth,
+  GoogleAuthProvider,
+  setPersistence,
   signInWithPopup,
   signOut,
-  setPersistence,
-  browserLocalPersistence,
 } from "firebase/auth";
 
 const firebaseConfig = {
@@ -19,8 +19,8 @@ const firebaseConfig = {
 };
 
 // import "firebase/firestore";
-import { getDoc, doc, getFirestore } from "firebase/firestore";
-import { getFunctions, connectFunctionsEmulator } from "firebase/functions";
+import { doc, getDoc, getFirestore } from "firebase/firestore";
+import { connectFunctionsEmulator, getFunctions } from "firebase/functions";
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -63,26 +63,26 @@ const logOut = () => {
     });
 };
 
-const getUserByUid = async (uid: string) => {
-  // TODO: get user from database
+// const getUserByUid = async (uid: string) => {
+//   // TODO: get user from database
 
-  console.log("test");
-  console.log(uid);
+//   console.log("test");
+//   console.log(uid);
 
-  const userRef = doc(db, "users", uid);
+//   const userRef = doc(db, "users", uid);
 
-  const userSnap = await getDoc(userRef);
+//   const userSnap = await getDoc(userRef);
 
-  // console.log("userSnap: ", userSnap);
+//   // console.log("userSnap: ", userSnap);
 
-  if (userSnap.exists()) {
-    const userData = userSnap.data();
-    console.log("User found!");
-    return { message: "User found!", userData: userData };
-  } else {
-    console.log("No such user!");
-    return { error: "No such user!" };
-  }
-};
+//   if (userSnap.exists()) {
+//     const userData = userSnap.data();
+//     console.log("User found!");
+//     return { message: "User found!", userData: userData };
+//   } else {
+//     console.log("No such user!");
+//     return { error: "No such user!" };
+//   }
+// };
 
-export { signInWithGoogle, logOut, auth, getUserByUid, functions, db };
+export { signInWithGoogle, logOut, auth, functions, db };

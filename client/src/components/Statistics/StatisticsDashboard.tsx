@@ -11,36 +11,12 @@ import WeeklyStatisticsDashboard from "./WeeklyStatisticsDashboard";
 export default function StatisticsDashboard() {
   const { userId: uid } = useParams();
 
-  // const [userStatistics, setUserStatistics] = useState<Statistics | null>(null);
-
   if (!uid) return <p>No user id</p>;
   const { userTotalStatistics, isLoading, error } = useUserTotalStatistics(uid);
 
   if (isLoading) return <p>Loading...</p>;
 
   if (error) return <p>Error: {error.message}</p>;
-
-  // const handleGetUserStatistics = httpsCallable(
-  //   functions,
-  //   "handleGetUserStatisticsCallable"
-  // );
-
-  // useEffect(() => {
-  //   getUserStatistics();
-  // }, []);
-
-  // const getUserStatistics = async () => {
-  //   // if (!uid) return;
-
-  //   try {
-  //     const result = await handleGetUserStatistics({ uid });
-
-  //     console.log(result.data);
-  //     // setUserStatistics(data as Statistics);
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
 
   return (
     <Stack

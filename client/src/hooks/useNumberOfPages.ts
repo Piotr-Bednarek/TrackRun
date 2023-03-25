@@ -7,38 +7,34 @@ export const useNumberOfPages = (uid: string) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<any>(null);
 
-  const handleGetNumberOfPages = httpsCallable(
+  const [runsCollectionSize, setRunsCollectionSize] = useState<number>(0);
+
+  const handleGetRunsCollectionSize = httpsCallable(
     functions,
-    "handleGetNumberOfPages"
+    "handleGetRunsCollectionSize"
   );
 
   useEffect(() => {
     getNumberOfPages();
   }, []);
 
+  useEffect(() => {
+    calculateNumberOfPages(runsCollectionSize);
+  }, [runsCollectionSize]);
+
   const getNumberOfPages = async () => {
     setIsLoading(true);
     setError(null);
 
     try {
-      if (sessionStorage.getItem("numberOfPages")) {
-        setNumberOfPages(JSON.parse(sessionStorage.getItem("numberOfPages")!));
-        setIsLoading(false);
-        return;
-      }
-
-      const result = await handleGetNumberOfPages({ uid });
-      const { success, numberOfPages } = result.data as {
+      const result = await handleGetRunsCollectionSize({ uid });
+      const { success, numberOfRuns } = result.data as {
         success: boolean;
-        numberOfPages: number;
+        numberOfRuns: number;
       };
 
-      if (numberOfPages === 0) {
-        setNumberOfPages(1);
-        sessionStorage.setItem("numberOfPages", JSON.stringify(1));
-      } else {
-        setNumberOfPages(numberOfPages);
-        sessionStorage.setItem("numberOfPages", JSON.stringify(numberOfPages));
+      if (success) {
+        setRunsCollectionSize(numberOfRuns);
       }
 
       setIsLoading(false);
@@ -48,15 +44,13 @@ export const useNumberOfPages = (uid: string) => {
     }
   };
 
-  const updateNumberOfPages = (arrayLength: number) => {
-    console.log("arrayLength", arrayLength + 1);
-    const newNumberOfPages = Math.ceil((arrayLength + 1) / 10);
+  const calculateNumberOfPages = (arrayLength: number) => {
+    const newNumberOfPages = Math.ceil(arrayLength / 10);
     setNumberOfPages(newNumberOfPages);
-    console.log(newNumberOfPages || 1);
-    sessionStorage.setItem(
-      "numberOfPages",
-      JSON.stringify(newNumberOfPages || 1)
-    );
+  };
+
+  const updateNumberOfPages = () => {
+    setRunsCollectionSize(runsCollectionSize + 1);
   };
 
   return { numberOfPages, isLoading, error, updateNumberOfPages };

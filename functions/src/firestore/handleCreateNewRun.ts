@@ -5,7 +5,7 @@ import { firebaseApp } from "../firebase";
 
 const db = firebaseApp.firestore();
 
-export const handleNewRunCallable = functions
+export const handleCreateNewRun = functions
   .region("europe-west1")
   .https.onCall(async (data, context) => {
     try {
@@ -21,7 +21,7 @@ export const handleNewRunCallable = functions
       const runRef = runsRef.doc();
       await runRef.set(runData);
 
-      return { success: true, runId: runRef.id };
+      return { success: true };
     } catch (error) {
       console.error("Error adding run to database: ", error);
       return { success: false, error: error };

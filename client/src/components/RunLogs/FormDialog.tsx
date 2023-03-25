@@ -13,8 +13,8 @@ import { functions } from "../../firebase/firebase";
 
 import RunListContext from "../../contexts/RunListContext";
 
-import { db } from "../../firebase/firebase";
 import { Timestamp } from "firebase/firestore";
+// import { db } from "../../firebase/firebase";
 
 interface Props {
   uid: string;
@@ -42,27 +42,25 @@ export default function FormDialog(props: Props) {
       return;
     }
 
-    // console.log(distanceKm, timeHours, timeMinutes);
-
     handleLogNewRun();
 
     cleanUp();
   };
 
-  const handleNewRun = httpsCallable(functions, "handleNewRunCallable");
+  const handleCreateNewRun = httpsCallable(functions, "handleCreateNewRun");
 
   const handleLogNewRun = async () => {
-    console.log("handleLogNewRun called");
-    console.log("uid: ", uid);
+    // console.log("handleLogNewRun called");
+    // console.log("uid: ", uid);
 
     const totalTimeInMinutes =
       (parseInt(timeHours || "0") ?? 0) * 60 +
       (parseInt(timeMinutes || "0") ?? 0);
 
-    console.log("totalTimeInMinutes: ", totalTimeInMinutes);
+    // console.log("totalTimeInMinutes: ", totalTimeInMinutes);
 
     const timestamp = Timestamp.now();
-    console.log("timestamp: ", timestamp);
+    // console.log("timestamp: ", timestamp);
 
     const runData = {
       // runDate: timestamp,
@@ -73,11 +71,11 @@ export default function FormDialog(props: Props) {
     addNewRun({ runDate: timestamp, ...runData });
 
     try {
-      const response = await handleNewRun({
+      // const response =
+      await handleCreateNewRun({
         uid: uid,
         runData,
       });
-      console.log(response);
     } catch (error) {
       console.log(error);
     }
