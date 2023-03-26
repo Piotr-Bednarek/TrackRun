@@ -1,4 +1,11 @@
-import { AppBar, Avatar, Box, SvgIcon, Typography } from "@mui/material";
+import {
+  AppBar,
+  Avatar,
+  Box,
+  SvgIcon,
+  Typography,
+  useMediaQuery,
+} from "@mui/material";
 import { useContext } from "react";
 import { Link } from "react-router-dom";
 
@@ -8,70 +15,219 @@ interface UserPageAppBarProps {
   height: string;
 }
 
-function UserPageAppBar({ height }: UserPageAppBarProps) {
+export default function UserPageAppBar({ height }: UserPageAppBarProps) {
   const { photoURL, displayName, isOwnProfile } = useContext(HeaderContext);
 
   const iconPath =
     "M320 48a48 48 0 1 0 -96 0 48 48 0 1 0 96 0zM125.7 175.5c9.9-9.9 23.4-15.5 37.5-15.5c1.9 0 3.8 .1 5.6 .3L137.6 254c-9.3 28 1.7 58.8 26.8 74.5l86.2 53.9-25.4 88.8c-4.9 17 5 34.7 22 39.6s34.7-5 39.6-22l28.7-100.4c5.9-20.6-2.6-42.6-20.7-53.9L238 299l30.9-82.4 5.1 12.3C289 264.7 323.9 288 362.7 288H384c17.7 0 32-14.3 32-32s-14.3-32-32-32H362.7c-12.9 0-24.6-7.8-29.5-19.7l-6.3-15c-14.6-35.1-44.1-61.9-80.5-73.1l-48.7-15c-11.1-3.4-22.7-5.2-34.4-5.2c-31 0-60.8 12.3-82.7 34.3L57.4 153.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l23.1-23.1zM91.2 352H32c-17.7 0-32 14.3-32 32s14.3 32 32 32h69.6c19 0 36.2-11.2 43.9-28.5L157 361.6l-9.5-6c-17.5-10.9-30.5-26.8-37.9-44.9L91.2 352z";
 
+  const isSmallScreen = useMediaQuery("(max-width: 400px)");
+
   return (
     <AppBar
+      elevation={0}
       sx={{
         zIndex: (theme) => theme.zIndex.drawer + 1,
         height: height,
         boxSizing: "border-box",
-        borderBottom: "2px solid rgb(77, 77, 77)",
+        // borderBottom: "2px solid rgb(77, 77, 77)",
       }}
     >
       <Box
         sx={{
           display: "flex",
-          backgroundColor: "rgb(21, 21, 21)",
+          // backgroundColor: "green",
+          backgroundColor: "rgb(39, 39, 39)",
           height: "100%",
           alignItems: "center",
           justifyContent: "space-between",
           flexGrow: 1,
-          px: 2,
-          gap: 2,
+          px: 0.5,
+          // gap: 0.5,
         }}
       >
         <Box
           sx={{
             display: "flex",
+            justifyContent: "center",
             alignItems: "center",
+            height: "100%",
+            gap: 1,
+            padding: "0.2rem",
+            paddingLeft: 0,
+
+            width: isSmallScreen ? height : "flex: 1",
+            minWidth: height,
+            boxSizing: "border-box",
           }}
         >
-          <Link to="/">
-            <SvgIcon
-              fontSize="large"
-              sx={{ fill: "white", mr: 2 }}
-              viewBox="0 0 512 512"
+          {isSmallScreen && (
+            <Box
+              sx={{
+                // backgroundColor: "blue",
+                backgroundColor: "rgb(21, 21, 21)",
+                height: "100%",
+                width: "100%",
+                boxSizing: "border-box",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                borderRadius: "0.5rem",
+
+                // position: "absolute",
+              }}
             >
-              <path d={iconPath} />
-            </SvgIcon>
-          </Link>
-          <Typography
+              <Box
+                sx={{
+                  // backgroundColor: "dodgerblue",
+                  position: "relative",
+                  top: "50%",
+                  left: "50%",
+                  transform: "translate(-85%, -70%)",
+                }}
+              >
+                <Link to="/">
+                  <SvgIcon
+                    fontSize="medium"
+                    sx={{
+                      fill: "white",
+                    }}
+                    viewBox="0 0 512 512"
+                  >
+                    <path d={iconPath} />
+                  </SvgIcon>
+                </Link>
+              </Box>
+            </Box>
+          )}
+          {!isSmallScreen && (
+            <Box
+              sx={{
+                // backgroundColor: "blue",
+                backgroundColor: "rgb(21, 21, 21)",
+                height: "100%",
+                width: "100%",
+                boxSizing: "border-box",
+                display: "flex",
+                justifyContent: "flex-start",
+                alignItems: "center",
+                borderRadius: "0.5rem",
+                px: 2,
+                gap: 1,
+
+                // position: "absolute",
+              }}
+            >
+              <Box
+                sx={{
+                  // backgroundColor: "dodgerblue",
+                  position: "relative",
+                  top: "50%",
+                  left: "0%",
+                  transform: "translate(-20%, -70%)",
+                }}
+              >
+                <Link to="/">
+                  <SvgIcon
+                    fontSize="medium"
+                    sx={{
+                      fill: "white",
+                    }}
+                    viewBox="0 0 512 512"
+                  >
+                    <path d={iconPath} />
+                  </SvgIcon>
+                </Link>
+              </Box>
+
+              <Typography
+                sx={{
+                  fontWeight: "bold",
+                  fontStyle: "italic",
+                  fontSize: "1.5rem",
+                  lineHeight: "100%",
+                }}
+              >
+                TrackRun
+              </Typography>
+            </Box>
+          )}
+        </Box>
+        {/* {isOwnProfile && <Typography>Own Profile</Typography>} */}
+        <Box
+          sx={{
+            // backgroundColor: "red",
+            flex: 1,
+            height: "100%",
+            boxSizing: "border-box",
+            display: "flex",
+            justifyContent: "flex-start",
+            alignItems: "center",
+            flexDirection: "row",
+            p: "0.2rem",
+            paddingLeft: 0,
+          }}
+        >
+          <Box
             sx={{
-              fontWeight: "bold",
-              fontStyle: "italic",
-              fontSize: "1.5rem",
+              backgroundColor: "rgb(21, 21, 21)",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "100%",
+              px: 1,
+              borderRadius: "0.5rem",
             }}
           >
-            TrackRun
-          </Typography>
+            <Typography
+              sx={{
+                fontWeight: "normal",
+                fontSize: "1rem",
+              }}
+            >
+              Hello,&nbsp;
+            </Typography>
+            <Typography
+              sx={{
+                fontWeight: "bold",
+                fontStyle: "italic",
+                fontSize: "1rem",
+              }}
+            >
+              {displayName}!
+            </Typography>
+          </Box>
         </Box>
-        {isOwnProfile && <Typography>Own Profile</Typography>}
-        {displayName}
-        <Avatar
-          src={photoURL}
+        <Box
           sx={{
-            width: "calc(headerHeight - 0.5rem)",
-            height: "calc(headerHeight - 0.5rem)",
+            boxSizing: "border-box",
+            width: height,
+            height: height,
+            minWidth: height,
+            minHeight: height,
+            p: 0.2,
           }}
-        />
+        >
+          <Box
+            sx={{
+              backgroundColor: "rgb(21, 21, 21)",
+              // height: height,
+              // width: height,
+              padding: "0.3rem",
+              borderRadius: "50%",
+              boxSizing: "border-box",
+            }}
+          >
+            <Avatar
+              src={photoURL}
+              sx={{
+                width: "100%",
+                height: "100%",
+              }}
+            />
+          </Box>
+        </Box>
       </Box>
     </AppBar>
   );
 }
-
-export default UserPageAppBar;

@@ -209,7 +209,7 @@ export default function UserPage() {
     setOpen(!open);
   };
 
-  const headerHeight = "4rem";
+  const headerHeight = "3rem";
 
   return (
     <Box
