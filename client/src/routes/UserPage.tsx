@@ -15,6 +15,7 @@ import Dashboard from "../components/Dashboard";
 import NavigationDrawer from "../components/Drawer/NavigationDrawer";
 import RunList from "../components/RunLogs/RunList";
 import UserPageAppBar from "../components/UserPageAppBar";
+import NavigationDrawerContext from "../contexts/NavigationDrawerContext";
 
 export default function UserPage() {
   const { userId: uid } = useParams();
@@ -86,37 +87,6 @@ export default function UserPage() {
     // fetchUserData();
     // fetchUserRunData();
   }, [uid]);
-
-  // useEffect(() => {
-  //   if (uid === "undefined") {
-  //     console.log("No uid");
-  //     return;
-  //   }
-
-  // }, [uid]);
-
-  // const fetchUserRunData = () => {
-  //   // console.log(
-  //   //   `http://127.0.0.1:5001/track-run-b9950/europe-west1/getUserRunData?uid=${uid}`
-  //   // );
-  //   fetch(
-  //     `http://127.0.0.1:5001/track-run-b9950/europe-west1/getUserRunData?uid=${uid}`,
-  //     {
-  //       method: "GET",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //     }
-  //   )
-  //     .then((response) => response.json())
-  //     .then((result) => {
-  //       // console.log(result);
-  //       setUserRunData(result.runData);
-  //     })
-  //     .catch((error) => {
-  //       console.log(error);
-  //     });
-  // };
 
   const handleLogout = () => {
     console.log("Logout clicked");
@@ -209,7 +179,7 @@ export default function UserPage() {
     setOpen(!open);
   };
 
-  const headerHeight = "3rem";
+  const headerHeight = 4;
 
   return (
     <Box
@@ -297,12 +267,18 @@ export default function UserPage() {
             </Box>
           </Box>
         </Box>
-        <NavigationDrawer
-          widthClosed={drawerWidthClosed}
-          widthOpen={drawerWidthOpen}
-          open={open}
-          toggleDrawer={toggleDrawer}
-        />
+        <NavigationDrawerContext.Provider
+          value={{
+            headerHeight: headerHeight,
+          }}
+        >
+          <NavigationDrawer
+            widthClosed={drawerWidthClosed}
+            widthOpen={drawerWidthOpen}
+            open={open}
+            toggleDrawer={toggleDrawer}
+          />
+        </NavigationDrawerContext.Provider>
       </Box>
     </Box>
   );

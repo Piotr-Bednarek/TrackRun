@@ -7,6 +7,9 @@ import ShowChartIcon from "@mui/icons-material/ShowChart";
 import ViewListIcon from "@mui/icons-material/ViewList";
 
 import { Box, Drawer, IconButton, Stack } from "@mui/material";
+import { useContext } from "react";
+
+import NavigationDrawerContext from "../../contexts/NavigationDrawerContext";
 
 interface NavigationDrawerProps {
   widthOpen: string;
@@ -21,7 +24,7 @@ function NavigationDrawer({
   open,
   toggleDrawer,
 }: NavigationDrawerProps) {
-  const headerHeight = "4rem";
+  const { headerHeight } = useContext(NavigationDrawerContext);
 
   const iconStyle = {
     alignItems: "center",

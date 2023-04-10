@@ -12,7 +12,7 @@ import { Link } from "react-router-dom";
 import HeaderContext from "../contexts/HeaderContext";
 
 interface UserPageAppBarProps {
-  height: string;
+  height: number;
 }
 
 export default function UserPageAppBar({ height }: UserPageAppBarProps) {
@@ -28,7 +28,7 @@ export default function UserPageAppBar({ height }: UserPageAppBarProps) {
       elevation={0}
       sx={{
         zIndex: (theme) => theme.zIndex.drawer + 1,
-        height: height,
+        height: height + "rem",
         boxSizing: "border-box",
         // borderBottom: "2px solid rgb(77, 77, 77)",
       }}
@@ -56,49 +56,46 @@ export default function UserPageAppBar({ height }: UserPageAppBarProps) {
             padding: "0.2rem",
             paddingLeft: 0,
 
-            width: isSmallScreen ? height : "flex: 1",
-            minWidth: height,
+            width: isSmallScreen ? height + "rem" : "flex: 1",
+            minWidth: height + "rem",
             boxSizing: "border-box",
           }}
         >
           {isSmallScreen && (
-            <Box
-              sx={{
-                // backgroundColor: "blue",
-                backgroundColor: "rgb(21, 21, 21)",
-                height: "100%",
-                width: "100%",
-                boxSizing: "border-box",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                borderRadius: "0.5rem",
-
-                // position: "absolute",
-              }}
-            >
+            <a href="/" style={{ display: "block", height: "100%" }}>
               <Box
                 sx={{
-                  // backgroundColor: "dodgerblue",
-                  position: "relative",
-                  top: "50%",
-                  left: "50%",
-                  transform: "translate(-85%, -70%)",
+                  // backgroundColor: "blue",
+                  backgroundColor: "rgb(21, 21, 21)",
+                  height: "100%",
+                  width: "100%",
+                  boxSizing: "border-box",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  borderRadius: "0.5rem",
+
+                  // position: "absolute",
                 }}
               >
-                <Link to="/">
-                  <SvgIcon
-                    fontSize="medium"
-                    sx={{
-                      fill: "white",
-                    }}
-                    viewBox="0 0 512 512"
-                  >
-                    <path d={iconPath} />
-                  </SvgIcon>
-                </Link>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 512 512"
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    width: "60%",
+                    paddingLeft: "10%",
+                    height: "auto",
+                    fill: "white",
+                    // backgroundColor: "white",
+                  }}
+                >
+                  <path d={iconPath} />
+                </svg>
               </Box>
-            </Box>
+            </a>
           )}
           {!isSmallScreen && (
             <Box
@@ -112,33 +109,45 @@ export default function UserPageAppBar({ height }: UserPageAppBarProps) {
                 justifyContent: "flex-start",
                 alignItems: "center",
                 borderRadius: "0.5rem",
-                px: 2,
+                // px: 2,
+                paddingRight: 2,
                 gap: 1,
-
-                // position: "absolute",
               }}
             >
-              <Box
-                sx={{
-                  // backgroundColor: "dodgerblue",
-                  position: "relative",
-                  top: "50%",
-                  left: "0%",
-                  transform: "translate(-20%, -70%)",
-                }}
-              >
-                <Link to="/">
-                  <SvgIcon
-                    fontSize="medium"
-                    sx={{
-                      fill: "white",
-                    }}
+              <a href="/" style={{ display: "block", height: "100%" }}>
+                <Box
+                  sx={{
+                    // backgroundColor: "dodgerblue",
+                    backgroundColor: "rgb(21, 21, 21)",
+                    height: "100%",
+                    width: height - 0.25 + "rem",
+                    boxSizing: "border-box",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    borderRadius: "0.5rem",
+
+                    // position: "absolute",
+                  }}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 512 512"
+                    style={{
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      width: "60%",
+                      paddingLeft: "10%",
+                      height: "auto",
+                      fill: "white",
+                      // backgroundColor: "white",
+                    }}
                   >
                     <path d={iconPath} />
-                  </SvgIcon>
-                </Link>
-              </Box>
+                  </svg>
+                </Box>
+              </a>
 
               <Typography
                 sx={{
@@ -168,43 +177,45 @@ export default function UserPageAppBar({ height }: UserPageAppBarProps) {
             paddingLeft: 0,
           }}
         >
-          <Box
-            sx={{
-              backgroundColor: "rgb(21, 21, 21)",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              height: "100%",
-              px: 1,
-              borderRadius: "0.5rem",
-            }}
-          >
-            <Typography
+          {displayName && (
+            <Box
               sx={{
-                fontWeight: "normal",
-                fontSize: "1rem",
+                backgroundColor: "rgb(21, 21, 21)",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                height: "100%",
+                px: 1,
+                borderRadius: "0.5rem",
               }}
             >
-              Hello,&nbsp;
-            </Typography>
-            <Typography
-              sx={{
-                fontWeight: "bold",
-                fontStyle: "italic",
-                fontSize: "1rem",
-              }}
-            >
-              {displayName}!
-            </Typography>
-          </Box>
+              <Typography
+                sx={{
+                  fontWeight: "normal",
+                  fontSize: "1rem",
+                }}
+              >
+                Hello,&nbsp;
+              </Typography>
+              <Typography
+                sx={{
+                  fontWeight: "bold",
+                  fontStyle: "italic",
+                  fontSize: "1rem",
+                }}
+              >
+                {displayName}!
+              </Typography>
+            </Box>
+          )}
         </Box>
         <Box
           sx={{
             boxSizing: "border-box",
-            width: height,
-            height: height,
-            minWidth: height,
-            minHeight: height,
+            width: height + "rem",
+            height: height + "rem",
+            minWidth: height + "rem",
+            minHeight: height + "rem",
             p: 0.2,
           }}
         >
